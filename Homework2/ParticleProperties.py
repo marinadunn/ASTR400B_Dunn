@@ -53,8 +53,8 @@ print "The 3D distance of the particle %s of type %s in kpc is: " %(pnum,ptype),
 print "The 3D velocity of the particle %s of type %s in kpc is: " %(pnum,ptype), results[1]
 print "The mass of the particle %s of type in Solar Masses is:", results[2]
 
-distance_Ly = results[0].to(u.lyr)
-velocity_Ly = results[1].to(u.lyr)
+distance_Ly = np.around(results[0].to(u.lyr),3)
+velocity_Ly = np.around(results[1].to(u.lyr),3)
 
 print "The 3D distance of the particle %s of type %s in ly is: " %(pnum,ptype), distance_Ly
 print "The 3D velocity of the particle %s of type %s in ly is: " %(pnum,ptype), velocity_Ly
