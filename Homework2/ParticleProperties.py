@@ -37,7 +37,7 @@ def ParticlePropertyInfo(ptype, pnum, filename):
     #calculates the 3D distance and velocity
     #For particle p_num, the array index is p_num -1
     distance = np.sqrt(xnew[pnum-1]**2 + ynew[pnum-1]**2 + znew[pnum-1]**2)*u.kpc
-    velocity = np.sqrt(vxnew[pnum-1]**2 + vynew[pnum-1]**2 + vznew[pnum-1]**2)*u.kpc
+    velocity = np.sqrt(vxnew[pnum-1]**2 + vynew[pnum-1]**2 + vznew[pnum-1]**2)*u.km/u.s
     distance_new = np.around(distance,3)
     velocity_new = np.around(velocity,3)
     m = mnew[pnum-1]*1e10*u.solMass
@@ -50,11 +50,11 @@ ptype = 2
 results = ParticlePropertyInfo(ptype,pnum,'MW_000.txt')
 
 print "The 3D distance of the particle %s of type %s in kpc is: " %(pnum,ptype), results[0]
-print "The 3D velocity of the particle %s of type %s in kpc is: " %(pnum,ptype), results[1]
+print "The 3D velocity of the particle %s of type %s in km/s is: " %(pnum,ptype), results[1]
 print "The mass of the particle %s of type in Solar Masses is:", results[2]
 
 distance_Ly = np.around(results[0].to(u.lyr),3)
-velocity_Ly = np.around(results[1].to(u.lyr),3)
+velocity_Ly = np.around(results[1],3)
 
 print "The 3D distance of the particle %s of type %s in ly is: " %(pnum,ptype), distance_Ly
-print "The 3D velocity of the particle %s of type %s in ly is: " %(pnum,ptype), velocity_Ly
+print "The 3D velocity of the particle %s of type %s in km/s is: " %(pnum,ptype), velocity_Ly
