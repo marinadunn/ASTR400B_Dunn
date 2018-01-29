@@ -25,7 +25,6 @@ def ParticlePropertyInfo(ptype, pnum, filename):
     index = np.where(data['type']==ptype)
     
     #Here we are assigning mass, position, and velocity for the Nth particle
-    
     mnew = data['m'][index]
     xnew = data['x'][index]
     ynew = data['y'][index]
