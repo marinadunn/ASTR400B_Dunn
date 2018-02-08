@@ -28,9 +28,9 @@ class CenterOfMass:
         self.vy = self.data['vy'][self.index]
         self.vz = self.data['vz'][self.index]
       
-    def total_mass(self,m):
+    def total_mass(m):
           #Note: you can add other keyword arguments into the function, but 'self' must be first
-          return np.sum(self.m)
+          return np.sum(m)
     
     #Defining a function that will calculate the 3D coordinates for the center of mass (based on position and velocity) for any galaxy
     #inputs will be random variables that will change later
@@ -72,7 +72,7 @@ class CenterOfMass:
                 index = np.where(RNEW<RMAX)
                 
                 #Calculates COM position for particles inside RMAX
-                XcomNEW, YcomNEW, ZcomNEW = self.COMdefine(self.x[index],self.y[index],self.z[index],self.m[index])
+                XNEW, YNEW, ZNEW = self.COMdefine(self.x[index],self.y[index],self.z[index],self.m[index])
                 
                 #Difference in particle and new COM positions
                 XNEW = self.x - Xcom
@@ -80,6 +80,8 @@ class CenterOfMass:
                 ZNEW = self.z - Zcom
                 RNEW = np.sqrt(XNEW**2+YNEW**2+ZNEW**2)
                 
+                #Max 3D separation for new COM coordinates, so a smaller radius
+                RMAX = np.amax(RNEW)/2.0
                 #Magnitude of distance for new COM
                 RCOM2 = np.sqrt(Xcom**2+Ycom**2+Zcom**2)
                 
@@ -87,10 +89,8 @@ class CenterOfMass:
                 diff = np.abs(RCOM-RCOM2)
                 RCOM=RCOM2
               
-                #Max 3D separation for new COM coordinates, so a smaller radius
-                RMAX2 = RMAX/2.0
 
-        return XcomNEW, YcomNEW, ZcomNEW
+        return XNEW, YNEW, ZNEW
 
     def COM_V(self, delta):
         #Defining particles within a certain radius
@@ -106,9 +106,9 @@ class CenterOfMass:
         index = np.where(np.abs(r)<15)
                 
         #Calculates COM velocity for particles inside RMAX, and use "self" again since it has been defined inside of the class
-        VXcomNEW, VYcomNEW, VZcomNEW = self.COMdefine(self.vx[index],self.vy[index],self.vz[index],self.m[index])
+        VXNEW, VYNEW, VZNEW = self.COMdefine(self.vx[index],self.vy[index],self.vz[index],self.m[index])
 
-        return VXcomNEW, VYcomNEW, VZcomNEW
+        return VXNEW, VYNEW, VZNEW
 #####
 ###Test if the code works
 #####
