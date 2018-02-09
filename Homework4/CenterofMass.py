@@ -36,9 +36,9 @@ class CenterOfMass:
     #inputs will be random variables that will change later
     #Calculate the center of mass position
     def COMdefine(self,x,y,z,m):
-        Xcom = np.sum(x*m)/self.total_mass(m)
-        Ycom = np.sum(y*m)/self.total_mass(m)
-        Zcom = np.sum(z*m)/self.total_mass(m)
+        Xcom = np.sum(x*m)/np.sum(m)
+        Ycom = np.sum(y*m)/np.sum(m)
+        Zcom = np.sum(z*m)/np.sum(m)
 
         return Xcom, Ycom, Zcom
     
@@ -72,7 +72,7 @@ class CenterOfMass:
                 index = np.where(RNEW<RMAX)
                 
                 #Calculates COM position for particles inside RMAX
-                XNEW, YNEW, ZNEW = self.COMdefine(self.x[index],self.y[index],self.z[index],self.m[index])
+                XcomNEW, YcomNEW, ZcomNEW = self.COMdefine(self.x[index],self.y[index],self.z[index],self.m[index])
                 
                 #Difference in particle and new COM positions
                 XNEW = self.x - Xcom
@@ -88,9 +88,12 @@ class CenterOfMass:
                 #difference in old and new COM for each component in position vector
                 diff = np.abs(RCOM-RCOM2)
                 RCOM=RCOM2
-              
+        
+                Xcom = XcomNEW
+                Ycom = YcomNEW
+                Zcom = ZcomNEW
 
-        return XNEW, YNEW, ZNEW
+        return Xcom, Ycom, Zcom
 
     def COM_V(self, delta):
         #Defining particles within a certain radius
@@ -106,9 +109,12 @@ class CenterOfMass:
         index = np.where(np.abs(r)<15)
                 
         #Calculates COM velocity for particles inside RMAX, and use "self" again since it has been defined inside of the class
-        VXNEW, VYNEW, VZNEW = self.COMdefine(self.vx[index],self.vy[index],self.vz[index],self.m[index])
-
-        return VXNEW, VYNEW, VZNEW
+        VXcomNEW, VYcomNEW, VZcomNEW = self.COMdefine(self.vx[index],self.vy[index],self.vz[index],self.m[index])
+        VXcom = VXcomNEW
+        VYcom = VYcomNEW
+        VZcom = VZcomNEW
+        
+        return VXcom, VYcom, VZcom
 #####
 ###Test if the code works
 #####
