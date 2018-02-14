@@ -119,45 +119,45 @@ class CenterOfMass:
 #Choosing a tolerance for COM
 delta = 0.3
 
-print("Answer to Question 1:")
+#print("Answer to Question 1:")
 MWCOM = CenterOfMass("MW_000.txt", 2)
 # Calculate quantities for MW data
 MW_Xcom, MW_Ycom, MW_Zcom = MWCOM.COM_P(delta)
 #Print COM position vector components for Milky Way
-print("MW COM Position Vector Components:"), MW_Xcom, MW_Ycom, MW_Zcom
+#print("MW COM Position Vector Components:"), MW_Xcom, MW_Ycom, MW_Zcom
 MW_VXcom, MW_VYcom, MW_VZcom = MWCOM.COM_V(delta)
 #Print COM velocity vector for Milky Way
-print("MW COM Velocity Vector Components:"),MW_VXcom, MW_VYcom, MW_VZcom
+#print("MW COM Velocity Vector Components:"),MW_VXcom, MW_VYcom, MW_VZcom
 
 M31COM = CenterOfMass("M31_000.txt", 2)
 # Calculate quantities for M31 data
 M31_Xcom, M31_Ycom, M31_Zcom = M31COM.COM_P(delta)
 #Print COM position vector for M31
-print("M31 COM Position Vector Components:"), M31_Xcom, M31_Ycom, M31_Zcom
+#print("M31 COM Position Vector Components:"), M31_Xcom, M31_Ycom, M31_Zcom
 M31_VXcom, M31_VYcom, M31_VZcom = M31COM.COM_V(delta)
 #Print COM velocity vector for M33
-print("M31 COM Velocity Vector Components:"),M31_VXcom, M31_VYcom, M31_VZcom
+#print("M31 COM Velocity Vector Components:"),M31_VXcom, M31_VYcom, M31_VZcom
 
 M33COM = CenterOfMass("M33_000.txt", 2)
 # Calculate quantities for M33 data
 M33_Xcom, M33_Ycom, M33_Zcom = M33COM.COM_P(delta)
 #Print COM position vector for M33
-print("M33 COM Position Vector Components:"), M33_Xcom, M33_Ycom, M33_Zcom
+#print("M33 COM Position Vector Components:"), M33_Xcom, M33_Ycom, M33_Zcom
 M33_VXcom, M33_VYcom, M33_VZcom = M33COM.COM_V(delta)
 #Print COM velocity vector for M33
-print("M33 COM Velocity Vector Components:"),M33_VXcom, M33_VYcom, M33_VZcom
+#print("M33 COM Velocity Vector Components:"),M33_VXcom, M33_VYcom, M33_VZcom
 
-print("The components above do not seem quite correct, but I cannot find a place in the code that changes the output correctly")
+#print("The components above do not seem quite correct, but I cannot find a place in the code that changes the output correctly")
 
-print ("Answer to Question 2:")
+#print ("Answer to Question 2:")
 #Print the magnitude of current separation between MW and M31
-print("Magnitude of current separation between MW and M31:"), np.sqrt((M31_Xcom - MW_Xcom)**2+(M31_Ycom - MW_Ycom)**2+(M31_Zcom - MW_Zcom)**2)
-print("Magnitude of velocity between MW and M31:"), np.sqrt((M31_VXcom - MW_VXcom)**2+(M31_VYcom - MW_VYcom)**2+(M31_VZcom - MW_VZcom)**2)
+#print("Magnitude of current separation between MW and M31:"), np.sqrt((M31_Xcom - MW_Xcom)**2+(M31_Ycom - MW_Ycom)**2+(M31_Zcom - MW_Zcom)**2)
+#print("Magnitude of velocity between MW and M31:"), np.sqrt((M31_VXcom - MW_VXcom)**2+(M31_VYcom - MW_VYcom)**2+(M31_VZcom - MW_VZcom)**2)
 
-print ("Answer to Question 3:")
+#print ("Answer to Question 3:")
 #Print the magnitude of current separation between M31 and M33
-print("Magnitude of current separation between M31 and M33:"), np.sqrt((M31_Xcom - M33_Xcom)**2+(M31_Ycom - M33_Ycom)**2+(M31_Zcom - M33_Zcom)**2)
-print("Magnitude of velocity between M31 and M33:"), np.sqrt((M31_VXcom - M33_VXcom)**2+(M31_VYcom - M33_VYcom)**2+(M31_VZcom - M33_VZcom)**2)
+#print("Magnitude of current separation between M31 and M33:"), np.sqrt((M31_Xcom - M33_Xcom)**2+(M31_Ycom - M33_Ycom)**2+(M31_Zcom - M33_Zcom)**2)
+#print("Magnitude of velocity between M31 and M33:"), np.sqrt((M31_VXcom - M33_VXcom)**2+(M31_VYcom - M33_VYcom)**2+(M31_VZcom - M33_VZcom)**2)
 
-print("Answer to Question 4:")
-print("As the galaxies become closer, the total separation decreases and velocity increases, thus changing the COM, especially after they start interacting, so we must use an iterative process as time evolves to update the COM calculation.")
+#print("Answer to Question 4:")
+#print("As the galaxies become closer, the total separation decreases and velocity increases, thus changing the COM, especially after they start interacting, so we must use an iterative process as time evolves to update the COM calculation.")
