@@ -16,14 +16,14 @@ import matplotlib.pyplot as plt
 
 #inputs for this class will be the galaxy name (string) and snapshot number
 class MassProfile:
-    def _init_(self, galaxy, snap):
+    def __init__(self, galaxy, snap):
         #Next, for a given filename, we only want the first characters that specify which galaxy we are talking about
         #We will add a string of the filenumber to the value "000"
         ilbl = '000' + str(snap)
         #Then, we want the part of the filename that specifies the snapnumber
         #remove everything except the last 3 digits
         ilbl = ilbl[-3:]
-        self.filename = '/home/marinadunn'+ "%s_"%(galaxy) + ilbl + '.txt' #stores filename as global property
+        self.filename = "%s_"%(galaxy) + ilbl + '.txt' #stores filename as global property
         #i.e. if I wanted "MW_010.txt", I would input "MW" and "10"
         #optional print statement to see if filename is printed correctly
         #print filename
@@ -32,13 +32,13 @@ class MassProfile:
     
         #Insert gravitational constant, need to adjust units; using the G below, in units of kpc^3/Gyr^2/Msun
         #Stores G as global property
-        self.G = G.to(u.kpc*u.km**2/u.s**2/u/Msun)
+        self.G = G.to(u.kpc*u.km**2/u.s**2/u.Msun)
     
         #Read in the filename, and data for particles of a certain ptype
         self.time, self.total_particles, self.data = Read(self.filename)
         
         #We want to store the galaxy name as a 'global property' self.gname
-        galaxy = self.gname
+        self.gname = galaxy
     
         #Now we will store the positions and mass of the particles
         self.m = self.data['m']
@@ -60,12 +60,12 @@ class MassProfile:
         z = self.z[index]
         
         #Finding positions of particles in COM frame
-        COMgal = CenterofMass(self.filename, ptype)
+        COMgal = CenterOfMass(self.filename, ptype)
         COMgal_Xcom, COMgal_Ycom, COMgal_Zcom = COMgal.COM_P(self.delta)
-        radius = np.sqrt((self.x[index]-COMgal_Xcom)**2 + (self.y[index]-COMgal_Ycom)**2 + (self.z[index]-COMgal_Zcom)**2)
+        radius = np.sqrt((self.x[index]-COMgal_Xcom)**2. + (self.y[index]-COMgal_Ycom)**2. + (self.z[index]-COMgal_Zcom)**2.)
 
         #initialize the array using np.zeros, storing the mass
-        mass = np.zeros(len(radii))*1e10*u.Msun
+        mass = np.zeros(len(radii))
         
         pmass = self.m[index]
       
@@ -76,7 +76,7 @@ class MassProfile:
             mass[i] = np.sum(m[j])*1e10
         
         #Want to return an array containing masses in units of solar masses
-        return Mass
+        return mass
     
     #Now we will create a function that will take in the radii array and return a mass array (in solar masses) containing the total mass of all the
     #galactic components(halo+disk+bulge(if applicable))
@@ -90,7 +90,7 @@ class MassProfile:
             Mtot = halomass + diskmass
        
         else:
-            bulgemass = self.MassEnclosed(3, radii) #ptype = 3
+            bulgemass = self.MassEnclosed(3.0, radii) #ptype = 3
             Mtot = halomass + diskmass + bulgemass
         
         return Mtot
@@ -101,7 +101,7 @@ class MassProfile:
     #Consult InClassLab2 for similar problem for finding halo mass using Hernquist profile
     #input: radius array (kpc), scale factor 'a', and halo mass Mhalo
     def HernquistMass(self, radii, a, Mhalo):
-        HernquistMass = (Mhalo*(radii**2))/((radii+a)**2)/1e12*u.Msun
+        HernquistMass = (Mhalo*(radii**2.))/((radii+a)**2.)/1e12*u.Msun
         #return halo mass in solar masses
         return HernquistMass
                       
@@ -111,7 +111,7 @@ class MassProfile:
         Mass = self.MassEnclosed(ptype, radii)*u.Msun
         
         #Calculate circular velocity
-        circular_velocity = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
+        circular_velocity = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
         return circular_velocity
     
     #Defining a function that takes in the radius array, and gives back an array of circular velocities in [km/s], using total mass enclosed
@@ -120,7 +120,7 @@ class MassProfile:
         Mass = MassEnclosedTotal(radii)*u.Msun
         
         #Calculate circular velocity
-        circular_velocity_total = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
+        circular_velocity_total = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
                       
         return circular_velocity_total
                       
@@ -131,7 +131,7 @@ class MassProfile:
         Mass = self. HernquistMass(radii, Mhalo, a)*u.Msun
                       
         #Calculate circular velocity
-        HernquistVCirc = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
+        HernquistVCirc = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
                       
         return HernquistVCirc
 
@@ -148,26 +148,26 @@ a = [62,62,25]
 
 for ii in range(len(galaxies)):
     #Initialize galaxy
-    galaxy = MassProfile(galaxies[ii], 0)
+    gal = MassProfile(galaxies[ii], 0)
                       
     #Find halo and disk masses within radii
-    Mhalo = galaxy.MassEnclosed(1, Radii)
-    Mdisk = galaxy.MassEnclosed(2, Radii)
+    Mhalo = gal.MassEnclosed(1, Radii)
+    Mdisk = gal.MassEnclosed(2, Radii)
               
     #Find bulge masses within radii, except for M33
-    if galaxy.gname != 'M33':
-        Mbulge = galaxy.MassEnclosed(3, Radii)
+    if gal.gname != 'M33':
+        Mbulge = gal.MassEnclosed(3, Radii)
                       
     #Find total masses within radii
-    Mtot = galaxy.MassEnclosedTotal(Radii)
+    Mtot = gal.MassEnclosedTotal(Radii)
         
     #Find total halo mass
-    index = np.where(galaxy.data['type'] == 1) #ptype = 1 for halo
-    m = galaxy.data['m'][index]
+    index = np.where(gal.data['type'] == 1) #ptype = 1 for halo
+    m = gal.data['m'][index]
     MhaloTot = np.sum(m)*1e10
                       
     #Find Hernquist Mass within radii
-    Hernquistmass = galaxy.HernquistMass(Radii, a[ii], MhaloTot)
+    Hernquistmass = gal.HernquistMass(Radii, a[ii], MhaloTot)
                       
     #Plot
     fig = plt.figure()
@@ -175,7 +175,7 @@ for ii in range(len(galaxies)):
     #Plot the Masses vs. Radius
     plt.semilogy(Radii, Mhalo, color='pink', label='Halo Mass')
     plt.semilogy(Radii, Mdisk, color='purple', label='Disk Mass')
-    if galaxy.gname != 'M33':
+    if gal.gname != 'M33':
         plt.semilogy(Radii, Mbulge, color='red', label='Bulge Mass')
     plt.semilogy(Radii, Mtot, color='yellow', label='Total Mass')
     plt.semilogy(Radii, Hernquistmass, color='blue', label='Hernquist Mass, a =' +str(a[ii]))
@@ -198,26 +198,26 @@ for ii in range(len(galaxies)):
 
 for jj in range(len(galaxies)):
     #Initialize galaxy
-    galaxy = MassProfile(galaxies[jj], 0)
+    gal = MassProfile(galaxies[jj], 0)
                      
     #Find halo and diak circular velocities within radii
-    VCircHalo = galaxy.CircularVelocity(1, Radii)
-    VCircDisk = galaxy.CircularVelocity(2, Radii)
+    VCircHalo = gal.CircularVelocity(1, Radii)
+    VCircDisk = gal.CircularVelocity(2, Radii)
                      
     #Find bulge circular velocity within radii, except for M33
-    if galaxy.gname != 'M33':
-        VCircBulge = galaxy.CircularVelocity(3, Radii)
+    if gal.gname != 'M33':
+        VCircBulge = gal.CircularVelocity(3, Radii)
                      
     #Find total circular velocities within radii
-    VCircTot = galaxy.CircularVelocityTotal(Radii)
+    VCircTot = gal.CircularVelocityTotal(Radii)
                      
     #Find total halo mass
-    index = np.where(galaxy.data['type'] == 1)
-    m = galaxy.data['m'][index]
+    index = np.where(gal.data['type'] == 1)
+    m = gal.data['m'][index]
     MhaloTot = np.sum(m)*1e10
                      
     #Find Hernquist Mass within radii
-    VCircHernquist = galaxy.HernquistVCirc(Radii, a[ii], MhaloTot)
+    VCircHernquist = gal.HernquistVCirc(Radii, a[ii], MhaloTot)
                      
     #Plot
     fig = plt.figure()
@@ -225,7 +225,7 @@ for jj in range(len(galaxies)):
     #Plot the Velocities vs. Radius
     plt.semilogy(Radii, VCircHalo, color='pink', label='Halo Circular Velocity')
     plt.semilogy(Radii, VCircDisk, color='purple', label='Disk Circular Velocity')
-    if galaxy.gname != 'M33':
+    if gal.gname != 'M33':
         plt.semilogy(Radii, VCircBulge, color='red', label='Bulge Circular Velocity')
     plt.semilogy(Radii, VCircTot, color='yellow', label='Total Circular Velocity')
     plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[ii]))
