@@ -9,9 +9,8 @@ import numpy as np
 import astropy.units as u
 from astropy.constants import G
 from ReadFile import Read
-from CenterofMass import CenterofMass
+from CenterofMass import CenterOfMass
 #import plotting modules, used in InClassLab solution 1
-from scipy.integrate import quad
 import matplotlib
 import matplotlib.pyplot as plt
 
@@ -35,6 +34,9 @@ class MassProfile:
         #Stores G as global property
         self.G = G.to(u.kpc*u.km**2/u.s**2/u/Msun)
     
+        #Read in the filename, and data for particles of a certain ptype
+        self.time, self.total_particles, self.data = Read(self.filename)
+        
         #We want to store the galaxy name as a 'global property' self.gname
         galaxy = self.gname
     
@@ -44,9 +46,6 @@ class MassProfile:
         self.y = self.data['y']
         self.z = self.data['z']
     
-        #Read in the filename, and data for particles of a certain ptype
-        self.time, self.total_particles, self.data = Read(self.filename)
-
     #Next we will define a function that, with given a radius (kpc) fora galaxy's COM position and a vector component, will calculate its mass
     #Inputs will be particle type, and an array containing radii for COM
     def MassEnclosed(self, ptype, radii):
@@ -144,16 +143,14 @@ class MassProfile:
 #Creating arrays of galaxy names, radii, and scale factor 'a' based on Mass Profile plots
                       
 galaxies = ['MW', 'M31', 'M33']
-Radii = np.arange(0.1, 30, 0.5)
-a = [62, 62, 25]
-import matplotlib
-import matplotlib.pyplot as plt
+Radii = np.arange(0.1,30,0.5)
+a = [62,62,25]
 
 for ii in range(len(galaxies)):
     #Initialize galaxy
-    galaxy = MassProfile(galaxies[ii], 00)
+    galaxy = MassProfile(galaxies[ii], 0)
                       
-    #Find halo and diak masses within radii
+    #Find halo and disk masses within radii
     Mhalo = galaxy.MassEnclosed(1, Radii)
     Mdisk = galaxy.MassEnclosed(2, Radii)
               
@@ -165,8 +162,8 @@ for ii in range(len(galaxies)):
     Mtot = galaxy.MassEnclosedTotal(Radii)
         
     #Find total halo mass
-    index = np.where(galaxy.data['type'] == 1)
-    m = galaxy.data['m'[index]]
+    index = np.where(galaxy.data['type'] == 1) #ptype = 1 for halo
+    m = galaxy.data['m'][index]
     MhaloTot = np.sum(m)*1e10
                       
     #Find Hernquist Mass within radii
@@ -181,7 +178,7 @@ for ii in range(len(galaxies)):
     if galaxy.gname != 'M33':
         plt.semilogy(Radii, Mbulge, color='red', label='Bulge Mass')
     plt.semilogy(Radii, Mtot, color='yellow', label='Total Mass')
-    plt.semilogy(Radii, Hernquistmass, color='blue', label='Hernquist Mass, a =' +str(a[ii])
+    plt.semilogy(Radii, Hernquistmass, color='blue', label='Hernquist Mass, a =' +str(a[ii]))
                       
     # Adding the axis labels and title
     plt.xlabel('Radius (kpc)', fontsize=22)
@@ -201,7 +198,7 @@ for ii in range(len(galaxies)):
 
 for jj in range(len(galaxies)):
     #Initialize galaxy
-    galaxy = MassProfile(galaxies[jj], 00)
+    galaxy = MassProfile(galaxies[jj], 0)
                      
     #Find halo and diak circular velocities within radii
     VCircHalo = galaxy.CircularVelocity(1, Radii)
@@ -216,7 +213,7 @@ for jj in range(len(galaxies)):
                      
     #Find total halo mass
     index = np.where(galaxy.data['type'] == 1)
-    m = galaxy.data['m'[index]]
+    m = galaxy.data['m'][index]
     MhaloTot = np.sum(m)*1e10
                      
     #Find Hernquist Mass within radii
@@ -225,13 +222,13 @@ for jj in range(len(galaxies)):
     #Plot
     fig = plt.figure()
                      
-    #Plot the Masses vs. Radius
+    #Plot the Velocities vs. Radius
     plt.semilogy(Radii, VCircHalo, color='pink', label='Halo Circular Velocity')
     plt.semilogy(Radii, VCircDisk, color='purple', label='Disk Circular Velocity')
-    if galaxy.gname = 'M33':
+    if galaxy.gname != 'M33':
         plt.semilogy(Radii, VCircBulge, color='red', label='Bulge Circular Velocity')
     plt.semilogy(Radii, VCircTot, color='yellow', label='Total Circular Velocity')
-    plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[ii])
+    plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[ii]))
                                   
     # Adding the axis labels and title
     plt.xlabel('Radius (kpc)', fontsize=22)
