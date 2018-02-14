@@ -61,8 +61,9 @@ class MassProfile:
         
         #Finding positions of particles in COM frame
         COMgal = CenterOfMass(self.filename, ptype)
+        print COMgal.COM_P(self.delta)
         COMgal_Xcom, COMgal_Ycom, COMgal_Zcom = COMgal.COM_P(self.delta)
-        radius = np.sqrt((self.x[index]-COMgal_Xcom)**2. + (self.y[index]-COMgal_Ycom)**2. + (self.z[index]-COMgal_Zcom)**2.)
+        radius = np.sqrt((self.x[index]-COMgal_Xcom)**2. + (self.y[index]-COMgal_Ycom)**2. + (self.z[index]-COMgal_Zcom)**2. )
 
         #initialize the array using np.zeros, storing the mass
         mass = np.zeros(len(radii))
@@ -86,11 +87,11 @@ class MassProfile:
         halomass = self.MassEnclosed(1, radii) #ptype = 1
         diskmass = self.MassEnclosed(2, radii) #ptype = 2
                       
-        if self.gname != 'M33':
+        if self.gname == 'M33':
             Mtot = halomass + diskmass
        
         else:
-            bulgemass = self.MassEnclosed(3.0, radii) #ptype = 3
+            bulgemass = self.MassEnclosed(3, radii) #ptype = 3
             Mtot = halomass + diskmass + bulgemass
         
         return Mtot
@@ -101,7 +102,7 @@ class MassProfile:
     #Consult InClassLab2 for similar problem for finding halo mass using Hernquist profile
     #input: radius array (kpc), scale factor 'a', and halo mass Mhalo
     def HernquistMass(self, radii, a, Mhalo):
-        HernquistMass = (Mhalo*(radii**2.))/((radii+a)**2.)/1e12*u.Msun
+        HernquistMass = (Mhalo*(radii**2.))/((radii+a)**2.)*u.Msun
         #return halo mass in solar masses
         return HernquistMass
                       
@@ -111,16 +112,16 @@ class MassProfile:
         Mass = self.MassEnclosed(ptype, radii)*u.Msun
         
         #Calculate circular velocity
-        circular_velocity = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
+        circular_velocity = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
         return circular_velocity
     
     #Defining a function that takes in the radius array, and gives back an array of circular velocities in [km/s], using total mass enclosed
     def CircularVelocityTotal(self, radii):
          #Find enclosed mass of given radii
-        Mass = MassEnclosedTotal(radii)*u.Msun
+        Mass = self.MassEnclosedTotal(radii)*u.Msun
         
         #Calculate circular velocity
-        circular_velocity_total = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
+        circular_velocity_total = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
                       
         return circular_velocity_total
                       
@@ -128,10 +129,10 @@ class MassProfile:
     #profile, and returns an array of circular velocities in [km/s]
     def HernquistVCirc(self, radii, Mhalo, a):
         #Find enclosed mass of given radii
-        Mass = self. HernquistMass(radii, Mhalo, a)*u.Msun
+        Mass = self.HernquistMass(radii, Mhalo, a)*u.Msun
                       
         #Calculate circular velocity
-        HernquistVCirc = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2.)
+        HernquistVCirc = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
                       
         return HernquistVCirc
 
@@ -143,10 +144,11 @@ class MassProfile:
 #Creating arrays of galaxy names, radii, and scale factor 'a' based on Mass Profile plots
                       
 galaxies = ['MW', 'M31', 'M33']
-Radii = np.arange(0.1,30,0.5)
+Radii = np.arange(0.1,30,0.75)
 a = [62,62,25]
 
 for ii in range(len(galaxies)):
+    print galaxies[ii]
     #Initialize galaxy
     gal = MassProfile(galaxies[ii], 0)
                       
@@ -181,21 +183,22 @@ for ii in range(len(galaxies)):
     plt.semilogy(Radii, Hernquistmass, color='blue', label='Hernquist Mass, a =' +str(a[ii]))
                       
     # Adding the axis labels and title
-    plt.xlabel('Radius (kpc)', fontsize=22)
-    plt.ylabel('Mass (Msun)', fontsize=22)
+    plt.xlabel('Radius (kpc)', fontsize=16)
+    plt.ylabel('Mass (Msun)', fontsize=16)
     plt.title(galaxies[ii] + ' Mass Profile')
 
     #adjust tick label font size
-    label_size = 22
+    label_size = 16
     matplotlib.rcParams['xtick.labelsize'] = label_size
     matplotlib.rcParams['ytick.labelsize'] = label_size
 
     # add a legend with some customizations.
-    plt.legend(loc='best',fontsize='x-large')
+    plt.legend(loc='best',fontsize='medium')
 
     # Save to a file
     plt.savefig(galaxies[ii] + '_Mass_Profile.eps')
-
+    plt.close()
+#Technically the next part does not have to be split up into another for loop, it can all be in one loop, but I have separated them
 for jj in range(len(galaxies)):
     #Initialize galaxy
     gal = MassProfile(galaxies[jj], 0)
@@ -217,7 +220,7 @@ for jj in range(len(galaxies)):
     MhaloTot = np.sum(m)*1e10
                      
     #Find Hernquist Mass within radii
-    VCircHernquist = gal.HernquistVCirc(Radii, a[ii], MhaloTot)
+    VCircHernquist = gal.HernquistVCirc(Radii, a[jj], MhaloTot)
                      
     #Plot
     fig = plt.figure()
@@ -228,21 +231,22 @@ for jj in range(len(galaxies)):
     if gal.gname != 'M33':
         plt.semilogy(Radii, VCircBulge, color='red', label='Bulge Circular Velocity')
     plt.semilogy(Radii, VCircTot, color='yellow', label='Total Circular Velocity')
-    plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[ii]))
+    plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[jj]))
                                   
     # Adding the axis labels and title
-    plt.xlabel('Radius (kpc)', fontsize=22)
-    plt.ylabel('Circular Velocity (km/s)', fontsize=22)
+    plt.xlabel('Radius (kpc)', fontsize=16)
+    plt.ylabel('Circular Velocity (km/s)', fontsize=16)
     plt.title(galaxies[jj] + ' Velocity Profile')
                                   
                                   
     #adjust tick label font size
-    label_size = 22
+    label_size = 16
     matplotlib.rcParams['xtick.labelsize'] = label_size
     matplotlib.rcParams['ytick.labelsize'] = label_size
                                   
     # add a legend with some customizations.
-    plt.legend(loc='best',fontsize='x-large')
+    plt.legend(loc='best',fontsize='medium')
                                   
     # Save to a file
     plt.savefig(galaxies[jj] + '_Velocity_Profile.eps')
+    plt.close()
