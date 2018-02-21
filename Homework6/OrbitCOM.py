@@ -271,18 +271,18 @@ plt.close()
 
 #Question 1: How many close encounters will the MW and M31 experience in the future?
 print "Answer to Question 1:"
-print "\n"
+print "3. They will get close about 2 times before merging completely into one. \n"
 
 #Question 2: How is the time evolution of the separation and relative velocity related?
 print "Answer to Question 2:"
-print "\n"
+print "Relative Velocity maxima are when the galaxies are closest, so as separation decreases, relative velocity increases.\n"
 
 #Question 3: When do M31 and MW merge (zoom in in plot)? What happens to M33's orbit when they do?
 print "Answer to Question 3:"
-print "\n"
+print "They merge at around 6.3 Gyr, and M33 becomes the closest it ever will to M31, then swings out and back to orbit the M31-MW merger remnant, so it stops around 7 Gyr.\n"
 
 #Question 4: What is the approximate decay rate of M33's orbit after 6 Gyr? If this rate is constant, how long will it take M33 to merge with the combined
 #MW+M31 remnant if it is at a distance of 75 kpc?
 print "Answer to Question 4 (Bonus):"
-print "\n"
+print "I would say maybe about 4.5 kpc/Gyr. \n"
 
