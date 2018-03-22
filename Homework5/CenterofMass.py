@@ -44,7 +44,7 @@ class CenterOfMass:
     
     #Defining a function that will call COMdefine and take in the position and velocity vectors for a
     #given particle type, and return the center of mass for a galaxy
-    def COM_P(self, delta):
+    def COM_P(self, delta, VolDec):
         #Call COMdefine to compute a first estimate for COM position, and use "self" again since it has been defined inside of the class
         Xcom, Ycom, Zcom = self.COMdefine(self.x,self.y,self.z,self.m)
         
@@ -63,7 +63,7 @@ class CenterOfMass:
         #We want to find the max 3D separation between the COM coordinates and the reference frame, then divide
         #that by half. We will continue to do this in order to check if the position is converging.
         print RNEW
-        RMAX = np.max(RNEW)/2.0
+        RMAX = np.max(RNEW)/VolDec
         
         #Setting an initial value for the difference
         diff = 100.0
@@ -88,13 +88,13 @@ class CenterOfMass:
                 diff = np.abs(RCOM-RCOM2)
               
                 #Max 3D separation for new COM coordinates, so a smaller radius
-                RMAX2 = RMAX/2.0
+                RMAX2 = RMAX/VolDec
 
         return XcomNEW, YcomNEW, ZcomNEW
 
-    def COM_V(self, delta):
+    def COM_V(self, delta, VolDec):
         #Defining particles within a certain radius
-        i, j, k = self.COM_P(0.3)
+        i, j, k = self.COM_P(delta, VolDec)
         
         #Separation to COM frame
         XNEW = self.x - i

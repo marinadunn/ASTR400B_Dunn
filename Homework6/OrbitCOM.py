@@ -6,6 +6,8 @@
 # First, import relevant modules
 import numpy as np
 import astropy.units as u
+from astropy.constants import G
+
 import matplotlib
 import matplotlib.pyplot as plt
 #Read in CenterOfMass, which has been updated to
@@ -15,26 +17,23 @@ from ReadFile import Read
 
 
 #We will create a function that takes in the galaxy name, snap number,
-#For this code, we wamt n=5, and orbits up to Snapshot 800, which corresponds to ~12 Gyr
+#For this code, we want n=5, and orbits up to Snapshot 800, which corresponds to ~12 Gyr
 def OrbitCOM(galaxy, start, end, n):
 
-    fileout = "Orbit_galaxyname.txt"
+    fileout = 'Orbit_%s.txt'
     
     #We will create an array that will store the positions nd velocities of the COM of the galaxy at each snapshot, so there are 7 columns
     Orbit = np.zeros((int(end/n)+1,7))
 
     #Set a tolerance and VolDec for each CenterOfMass object (MW, M33, M31)
-    #For MW:
+    #For MW and M31:
     delta = 0.3
-    VolDec = 2.
-
-    #For M31:
-    #delta = 0.3
-    #VolDec = 2.
+    VolDec = 2.0
 
     #For M33:
-    #delta = 0.5
-    #VolDec = 4.
+    if (galaxy == "M33"):
+    delta = 0.5
+    VolDec = 4.
 
     #Creating a for loop that will go from 'start' to 'end + 1' in intervals of n
     for i in np.arange(start, end+n, n):
@@ -44,16 +43,16 @@ def OrbitCOM(galaxy, start, end, n):
         #Then, we want the part of the filename that specifies the snapnumber
         #remove everything except the last 3 digits
         ilbl = ilbl[-3:]
-        filename = "%s_"%(galaxy) + ilbl + '.txt' #stores filename as global property
+        filename = '%s_'%(galaxy) + ilbl + '.txt' #stores filename as global property
         #i.e. if I wanted "MW_010.txt", I would input "MW" and "10"
         #optional print statement to see if filename is printed correctly
         #print filename
 
         #Creating a COM object for disk particles
-        COM = CenterOfMass('VLowRes/' + filename, 2) #use ptype = 2 for disk component
+        COM = CenterOfMass(filename, 2) #use ptype = 2 for disk component
 
         #Need to turn quantities back into floats by dividing by units in order to use them in an array
-        Orbit[int(i/n), 0] = float(COM.time/u.Myr)
+        Orbit[int(i/n), 0] = float(COM.time/u.Myr/1000.) #stores time in Gyr
 
         #Store the COM position in the Orbit array and divide out the units
         XcomNEW, YcomNEW, ZcomNEW = COM.COM_P(delta, VolDec)
@@ -76,7 +75,7 @@ def OrbitCOM(galaxy, start, end, n):
         fileout = 'M31_orbit.txt' #Change to alternate name when running on another galaxy with different tolerance and VolDec
         np.savetxt(fileout, Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
 
-    return Orbit
+    #return Orbit
 #Returns the Orbit array and the text file specified above, which uses the array
 
 
@@ -85,15 +84,13 @@ def OrbitCOM(galaxy, start, end, n):
 
 
 
-##########
-#Plotting#
-##########
 
 #First off, in order to compute 3D COM position and velocity vectors, we will need to go from SnapNumber 0 to 800 in n=5 intervals. Each time, we will
 #make 3 files that store these COM properies for each galaxy
-MW = open('MW_orbit.txt', 'r')
-M31 = open('M31_orbit.txt', 'r')
-M33 = open('M33_orbit.txt', 'r')
+print "MW Orbit:", OrbitCOM("MW",0,800,5)
+print "MW Orbit:", OrbitCOM("M31",0,800,5)
+print "MW Orbit:", OrbitCOM("M33",0,800,5)
+
 
 #Next, we will read in these newly-created COM files, and we will need to skip the lines beginning with '#'
 MW_data = np.genfromtxt('MW_Orbit.txt',dtype=None,names=True)
@@ -102,53 +99,41 @@ M33_data = np.genfromtxt('M33_Orbit.txt',dtype=None,names=True)
 
 #Now subtracting the 3D coordinates of the Milky Way from M31, and also M33 from M31, we will be able to calculate the magnitude of the separation
 #between the galaxies, then plot that over time
-time = np.zeros(len(MW_data))
-
-MW_Xcom = np.zeros(len(MW_data))
-MW_Ycom = np.zeros(len(MW_data))
-MW_Zcom = np.zeros(len(MW_data))
-
-M31_Xcom = np.zeros(len(MW_data))
-M31_Ycom = np.zeros(len(MW_data))
-M31_Zcom = np.zeros(len(MW_data))
-
-M33_Xcom = np.zeros(len(MW_data))
-M33_Ycom = np.zeros(len(MW_data))
-M33_Zcom = np.zeros(len(MW_data))
-
-for i in range(len(MW_data)):
-    time[i]=MW_data[i][0]
-    MW_Xcom[i]=MW_data[i][1]
-    MW_Ycom[i]=MW_data[i][2]
-    MW_Zcom[i]=MW_data[i][3]
-    M31_Xcom[i]=M31_data[i][1]
-    M31_Ycom[i]=M31_data[i][2]
-    M31_Zcom[i]=M31_data[i][3]
-    M33_Xcom[i]=M33_data[i][1]
-    M33_Ycom[i]=M33_data[i][2]
-    M33_Zcom[i]=M33_data[i][3]
 
 #Separation of MW and M31
-Xcom_diff1 = MW_Xcom - M31_Xcom
-Ycom_diff1 = MW_Ycom - M31_Ycom
-Zcom_diff1 = MW_Zcom - M31_Zcom
-distance1 = np.sqrt((Xcom_diff1)**2+(Ycom_diff1)**2+(Zcom_diff1)**2)
+MW_M31_separation = np.sqrt((MW_data['x']-M31_data['x'])**2+(MW_data['y']-M31_data['y'])**2+(MW_data['z']-M31_data['z'])**2)
+#Velocity of MW and M31
+MW_M31_velocity = np.sqrt((MW_data['vx']-M31_data['vx'])**2+(MW_data['vy']-M31_data['vy'])**2+(MW_data['vz']-M31_data['vz'])**2)
 
 #Separation of M33 and M31
-Xcom_diff2 = M33_Xcom - M31_Xcom
-Ycom_diff2 = M33_Ycom - M31_Ycom
-Zcom_diff2 = M33_Zcom - M31_Zcom
-distance2 = np.sqrt((Xcom_diff2)**2+(Ycom_diff2)**2+(Zcom_diff2)**2)
+M33_M31_separation = np.sqrt((M33_data['x']-M31_data['x'])**2+(M33_data['y']-M31_data['y'])**2+(M33_data['z']-M31_data['z'])**2)
+#Velocity of M33 and M31
+M33_M31_velocity = np.sqrt((M33_data['vx']-M31_data['vx'])**2+(M33_data['vy']-M31_data['vy'])**2+(M33_data['vz']-M31_data['vz'])**2)
 
 
-#Plot MW and M31 separation
-fig = plt.figure()
-plt.plot(time, distance1)
+##########
+#Plotting#
+##########
+
+
+
+#Plot a zoom of MW and M31 separation
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+plt.plot(MW_data['t'], MW_M31_separation, color='red', linewidth=5, label='MW-M31')
+#Plot a zoom of MW and M31 separation also
+fig = plt.figure(figsize=(10,10))
+plt.plot(M33_data['t'], M33_M31_separation, color='purple', linewidth=5, label='M33-M31')
+
 
  # Adding the axis labels and title
 plt.xlabel('Time (Gyr)', fontsize=16)
 plt.ylabel('Separation (kpc)', fontsize=16)
-plt.title("Center of Mass Separation Between MW and M31", fontsize=20)
+plt.title("Center of Mass Separation", fontsize=20)
+
+#set axis limits
+plt.ylim(0,50)
+plt.xlim(6,6.5)
 
 #adjust tick label font size
 label_size = 16
@@ -159,74 +144,40 @@ matplotlib.rcParams['ytick.labelsize'] = label_size
 plt.legend(loc='best',fontsize='medium')
 
 # Save to a file
-plt.savefig('MW_Separation.eps')
-plt.close()
-
-
-#Plot M33 and M31 separation
-fig = plt.figure()
-plt.plot(time, distance2)
-
- # Adding the axis labels and title
-plt.xlabel('Time (Gyr)', fontsize=16)
-plt.ylabel('Separation (kpc)', fontsize=16)
-plt.title("Center of Mass Separation Between M33 and M31", fontsize=20)
-
-#adjust tick label font size
-label_size = 16
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams['ytick.labelsize'] = label_size
-
-# add a legend with some customizations.
-plt.legend(loc='best',fontsize='medium')
-
-# Save to a file
-plt.savefig('MW_Separation.eps')
+ax.set_rasterized(True)
+plt.savefig('MW-M31_Separation.eps',rasterized=True, dpi=350)
 plt.close()
 
 #Finally, instead of distance magnitude plotted against time, we will find the magnitude of the relative velocity and plot that against time, once again
 #for MW and 31, and M33 and M31. This is done by subtracting the velocity components, VX, VY, and VZ rather than X, Y, and Z.
 
-MW_VXcom = np.zeros(len(MW_data))
-MW_VYcom = np.zeros(len(MW_data))
-MW_VZcom = np.zeros(len(MW_data))
 
-M31_VXcom = np.zeros(len(M31_data))
-M31_VYcom = np.zeros(len(M31_data))
-M31_VZcom = np.zeros(len(M31_data))
-
-M33_VXcom = np.zeros(len(M33_data))
-M33_VYcom = np.zeros(len(M33_data))
-M33_VZcom = np.zeros(len(M33_data))
-
-for i in range(len(MW_data)):
-    time[i]=MW_data[i][0]
-    MW_VXcom[i]=MW_data[i][4]
-    MW_VYcom[i]=MW_data[i][5]
-    MW_VZcom[i]=MW_data[i][6]
-    M31_VXcom[i]=M31_data[i][4]
-    M31_VYcom[i]=M31_data[i][5]
-    M31_VZcom[i]=M31_data[i][6]
-    M33_VXcom[i]=M33_data[i][4]
-    M33_VYcom[i]=M33_data[i][5]
-    M33_VZcom[i]=M33_data[i][6]
 
 #Separation of MW and M31
-VXcom_diff1 = MW_VXcom - M31_VXcom
-VYcom_diff1 = MW_VYcom - M31_VYcom
-VZcom_diff1 = MW_VZcom - M31_VZcom
-velocity1 = np.sqrt((VXcom_diff1)**2+(VYcom_diff1)**2+(VZcom_diff1)**2)
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+plt.plot(MW_data['t'], MW_M31_velocity, color='blue', linewidth=5, label='MW-M31')
 
 #Separation of M33 and M31
-VXcom_diff2 = M33_VXcom - M31_VXcom
-VYcom_diff2 = M33_VYcom - M31_VYcom
-VZcom_diff2 = M33_VZcom - M31_VZcom
-velocity2 = np.sqrt((VXcom_diff2)**2+(VYcom_diff2)**2+(VZcom_diff2)**2)
+fig = plt.figure(figsize=(10,10))
+plt.plot(M33_data['t'], M33_M31_velocity, color='pink', linewidth=5, label='M33-M31')
 
-#Plot MW and M31 separation
-fig = plt.figure()
-plt.plot(time, velocity1)
+# Adding the axis labels and title
+plt.xlabel('Time (Gyr)', fontsize=16)
+plt.ylabel('Separation (kpc)', fontsize=16)
+plt.title("Center of Mass Velocity", fontsize=20)
 
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+plt.savefig('MW_Separation.eps')
+plt.close()
 # Adding the axis labels and title
 plt.xlabel('Time (Gyr)', fontsize=16)
 plt.ylabel('Relative Velocity (km/s)', fontsize=16)
@@ -244,28 +195,6 @@ plt.legend(loc='best',fontsize='medium')
 plt.savefig('MW_Relative_Velocity.eps')
 plt.close()
 
-
-
-#Plot M33 and M31 separation
-fig = plt.figure()
-plt.plot(time, velocity2)
-
-# Adding the axis labels and title
-plt.xlabel('Time (Gyr)', fontsize=16)
-plt.ylabel('Relative Velocity (km/s)', fontsize=16)
-plt.title("Center of Mass Relative Velocity Between M33 and M31", fontsize=20)
-
-#adjust tick label font size
-label_size = 16
-matplotlib.rcParams['xtick.labelsize'] = label_size
-matplotlib.rcParams['ytick.labelsize'] = label_size
-
-# add a legend with some customizations.
-plt.legend(loc='best',fontsize='medium')
-
-# Save to a file
-plt.savefig('MW_Relative_Velocity.eps')
-plt.close()
 
 
 
