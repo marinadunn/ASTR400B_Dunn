@@ -1,15 +1,16 @@
 # Created by Marina Dunn on 3/22/18.
 # ASTR400B Spring 2018, Prof. Gurtina Besla
-#
+# Last edited on 3/29/18
 # First, import relevant modules
 import numpy as np
 import astropy.units as u
 from ReadFile import Read
-from CenterOfMass import CenterOfMass
+from CenterofMass import CenterOfMass
 
 # import plotting modules
 import matplotlib.pyplot as plt
 import matplotlib
+
 
 #Creating a class that will have a set of functions designed to calculate M33's acceleration felt by M31,
 #and integrate over its current position and velocity as time moves forward.
@@ -166,16 +167,19 @@ class M33AnalyticOrbit:
         #Now define variable t and integration start at t0, then continue looping with a while loop over LeapFrog until
         #reaching t_max = 10 Gyr; update time, positions, and velocities while doing so. Return results in an array,
         #initialized outside while loop.
-        orbit = np.zeros(step=(int(t_max/delta_t)+2,7))
+        orbit = np.zeros(step=(int((t_max-t0)/delta_t)+1,7))
         #store initial values in array
-        t0 = orbit[0][0]
-        x = orbit[0][1]
-        y = orbit[0][2]
-        z = orbit[0][3]
-        vx = orbit[0][4]
-        vy = orbit[0][5]
-        vz = orbit[0][6]
+        t0 = Orbit[0][0]
+        x = Orbit[0][1]
+        y = Orbit[0][2]
+        z = Orbit[0][3]
+        vx = Orbit[0][4]
+        vy = Orbit[0][5]
+        vz = Orbit[0][6]
 
+        #save output in text file
+        fileout = np.savetxt('M33Analytical_orbit.txt', Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+    
         #loop from t0 to t_max
         t = t0
         i = 1 #counter
@@ -185,13 +189,13 @@ class M33AnalyticOrbit:
                 #Optional print statement
                 print i
                 #store position and velocity vectors in array
-                orbit[i][0] = t + delta_t
-                orbit[i][1] = integrator[0]
-                orbit[i][2] = integrator[1]
-                orbit[i][3] = integrator[2]
-                orbit[i][4] = integrator[3]
-                orbit[i][5] = integrator[4]
-                orbit[i][6] = integrator[5]
+                Orbit[i][0] = t + delta_t
+                Orbit[i][1] = integrator[0]
+                Orbit[i][2] = integrator[1]
+                Orbit[i][3] = integrator[2]
+                Orbit[i][4] = integrator[3]
+                Orbit[i][5] = integrator[4]
+                Orbit[i][6] = integrator[5]
 
                 #reinitialize variable for new orbit
                 i = i + 1
@@ -204,5 +208,5 @@ class M33AnalyticOrbit:
                 vz = integrator[5]
 
         #save output in text file
-        np.savetxt('M33_Integrated_orbit.txt', orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
-        return None
+        fileout = np.savetxt('M33Analytical_orbit.txt', Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+        return i
