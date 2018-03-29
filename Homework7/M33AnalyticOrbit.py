@@ -7,11 +7,6 @@ import astropy.units as u
 from ReadFile import Read
 from CenterofMass import CenterOfMass
 
-# import plotting modules
-import matplotlib.pyplot as plt
-import matplotlib
-
-
 #Creating a class that will have a set of functions designed to calculate M33's acceleration felt by M31,
 #and integrate over its current position and velocity as time moves forward.
 
@@ -35,14 +30,14 @@ class M33AnalyticOrbit:
         self.vz = 93
         #Defining the mass of M31's Bulge, Disk, and Halo with data from HW3
         #disk scale length
-        self.rd = 5. * u.kpc
-        self.Mdisk = 0.12e12 * u.Msun #taken from HW3
+        self.rd = 5. # u.kpc
+        self.Mdisk = 0.12e12 # u.Msun #taken from HW3
         #bulge scale length
         self.rbulge = 1. #kpc
-        self.Mbulge = 0.019e12 * u.Msun #taken from HW3
+        self.Mbulge = 0.019e12 # u.Msun #taken from HW3
         #halo scale length, use Hernquist scale length 'a' from HW5
         self.rhalo = 62
-        self.Mhalo = 1.921e12 * u.Msun #taken from HW3
+        self.Mhalo = 1.921e12 # u.Msun #taken from HW3
         
         return None
         
@@ -81,24 +76,21 @@ class M33AnalyticOrbit:
 #It returns the acceleration from the Miyamoto-Nagai 1975 potential in the direction of the dummy variable
     def MiyamotoNagaiAccel(self,M,rd,x,y,z,n):
     #Its acceleration for the x or y component is the following
-        if n=='x':
-            k = x
-        if n=='y':
-            k = y
         #Zd is the disk scale height
         Zd = self.rd/5.
         R = np.sqrt(x**2+y**2)
         B = self.rd+(np.sqrt(z**2+Zd**2)) #Zd is the disk scale height
-        a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*k
-
+        if n=='x':
+            a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*x
+        if n=='y':
+            a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*y
         if n=='z':
-            k = z
-        a_k2 = (-(self.G*M*B)/((R**2+B**2)**1.5)*np.sqt(z**2+Zd**2))*k
+            a_k2 = (-(self.G*M*B)/((R**2+B**2)**1.5)*np.sqrt(z**2+Zd**2))*z
         return a_k2
 ###M31Acceleration
-#Defining a function that takes in the position components (x,y,z), and a dummy variable, and outputs the sum of all
+#Defining a function that takes in self, the position components (x,y,z), and a dummy variable, and outputs the sum of all
 #the acceleration terms from each galactic component in the direction of dummy variable
-    def M31Accel(x,y,z,n):
+    def M31Accel(self,x,y,z,n):
         a_bulge = self.HernquistAccel(self.Mbulge, self.rbulge, x, y, z, n)
         a_halo = self.HernquistAccel(self.Mhalo, self.rhalo, x, y, z, n)
         a_disk = self.MiyamotoNagaiAccel(self.Mdisk, self.rd, x, y, z, n)
@@ -167,7 +159,7 @@ class M33AnalyticOrbit:
         #Now define variable t and integration start at t0, then continue looping with a while loop over LeapFrog until
         #reaching t_max = 10 Gyr; update time, positions, and velocities while doing so. Return results in an array,
         #initialized outside while loop.
-        orbit = np.zeros(step=(int((t_max-t0)/delta_t)+1,7))
+        Orbit = np.zeros(shape=(int((t_max-t0)/delta_t)+2,7))
         #store initial values in array
         t0 = Orbit[0][0]
         x = Orbit[0][1]
@@ -176,9 +168,6 @@ class M33AnalyticOrbit:
         vx = Orbit[0][4]
         vy = Orbit[0][5]
         vz = Orbit[0][6]
-
-        #save output in text file
-        fileout = np.savetxt('M33Analytical_orbit.txt', Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
     
         #loop from t0 to t_max
         t = t0
@@ -189,13 +178,13 @@ class M33AnalyticOrbit:
                 #Optional print statement
                 print i
                 #store position and velocity vectors in array
-                Orbit[i][0] = t + delta_t
-                Orbit[i][1] = integrator[0]
-                Orbit[i][2] = integrator[1]
-                Orbit[i][3] = integrator[2]
-                Orbit[i][4] = integrator[3]
-                Orbit[i][5] = integrator[4]
-                Orbit[i][6] = integrator[5]
+                Orbit[i,0] = t + delta_t
+                Orbit[i,1] = integrator[0]
+                Orbit[i,2] = integrator[1]
+                Orbit[i,3] = integrator[2]
+                Orbit[i,4] = integrator[3]
+                Orbit[i,5] = integrator[4]
+                Orbit[i,6] = integrator[5]
 
                 #reinitialize variable for new orbit
                 i = i + 1
@@ -208,5 +197,8 @@ class M33AnalyticOrbit:
                 vz = integrator[5]
 
         #save output in text file
-        fileout = np.savetxt('M33Analytical_orbit.txt', Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
+        np.savetxt('M33Analytical_orbit.txt', Orbit, header='t x y z vx vy vz', comments='#', fmt=['%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f', '%.2f'])
         return i
+
+AnalyticalObject = M33AnalyticOrbit('M33Analytical_orbit.txt')
+M33Analytic_file = AnalyticalObject.OrbitIntegrator(0,0.1,10)
