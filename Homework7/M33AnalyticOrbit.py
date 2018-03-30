@@ -31,13 +31,13 @@ class M33AnalyticOrbit:
         #Defining the mass of M31's Bulge, Disk, and Halo with data from HW3
         #disk scale length
         self.rd = 5. # u.kpc
-        self.Mdisk = 0.12e12 # u.Msun #taken from HW3
+        self.Mdisk = 0.12*1e12 # u.Msun #taken from HW3
         #bulge scale length
         self.rbulge = 1. #kpc
-        self.Mbulge = 0.019e12 # u.Msun #taken from HW3
+        self.Mbulge = 0.019*1e12 # u.Msun #taken from HW3
         #halo scale length, use Hernquist scale length 'a' from HW5
         self.rhalo = 62
-        self.Mhalo = 1.921e12 # u.Msun #taken from HW3
+        self.Mhalo = 1.921*1e12 # u.Msun #taken from HW3
         
         return None
         
@@ -64,6 +64,7 @@ class M33AnalyticOrbit:
 
         r = np.sqrt(x**2+y**2+z**2) #position vector
         a_k1 = -((self.G*M)/(r*(Ra+r)**2))*k #Hernquist acceleration formula
+        print a_k1
         return a_k1
 
 ###Disk Acceleration
@@ -82,10 +83,13 @@ class M33AnalyticOrbit:
         B = self.rd+(np.sqrt(z**2+Zd**2)) #Zd is the disk scale height
         if n=='x':
             a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*x
+        # print a_k2
         if n=='y':
             a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*y
+        #  print a_k2
         if n=='z':
             a_k2 = (-(self.G*M*B)/((R**2+B**2)**1.5)*np.sqrt(z**2+Zd**2))*z
+            print a_k2
         return a_k2
 ###M31Acceleration
 #Defining a function that takes in self, the position components (x,y,z), and a dummy variable, and outputs the sum of all
@@ -131,10 +135,11 @@ class M33AnalyticOrbit:
         vy_full = vy + M31Accel_Y*delta_t
         vz_full = vz + M31Accel_Z*delta_t
 
-        x_full = x + 0.5*(vx+vx_full)*delta_t
-        y_full = y + 0.5*(vy+vy_full)*delta_t
-        z_full = z + 0.5*(vz+vz_full)*delta_t
-
+        x_full = x + 0.5*(vx + vx_full)* delta_t
+        y_full = y + 0.5*(vy + vy_full)* delta_t
+        z_full = z + 0.5*(vz + vz_full)* delta_t
+        print z_full
+        print vz_full
         return x_full, y_full, z_full, vx_full, vy_full, vz_full
 
 ###Step 4
@@ -201,7 +206,7 @@ class M33AnalyticOrbit:
         return i
 
 AnalyticalObject = M33AnalyticOrbit('M33Analytical_orbit.txt')
-M33Analytic_file = AnalyticalObject.OrbitIntegrator(0,0.5,10)
+M33Analytical_orbit = AnalyticalObject.OrbitIntegrator(0,0.5,10)
 
 
 print "Question 1: I cannot seem to get the simulation prediction to plot in addition to the analytical now. I would expect the separation to sharply increase around 6 Gyr and continue for the analytical solution. I would also expect M33's velocity to sharply increase around 2 Gyr and 6 Gyr as the galaxy make the passbys."
