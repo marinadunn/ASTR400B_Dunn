@@ -17,7 +17,7 @@ M33Analytic_separation = np.sqrt((M33Analytic['x'])**2+(M33Analytic['y'])**2+(M3
 M33Simulation_velocity = np.sqrt((M31Orbit['vx']-M33Orbit['vx'])**2+(M31Orbit['vy']-M33Orbit['vy'])**2+(M31Orbit['vz']-M33Orbit['vz'])**2)
 M33Analytic_velocity = np.sqrt((M33Analytic['vx'])**2+(M33Analytic['vy'])**2+(M33Analytic['vz'])**2)
 
-time = M33Orbit['t']/1e6
+# time = M33Orbit['t']/1e6
 
 #First plot M33-M31 position comparison
 
@@ -25,8 +25,8 @@ time = M33Orbit['t']/1e6
 figure1 = plt.figure(1,figsize=(10,10))
 ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
-plt.plot(M33Orbit['t']/1e6, M33Simulation_separation, c='b', label='Besla Simulation')
-plt.plot(M33Analytic['t']/1e6, M33Analytic_separation, c='y', label='Analytic Solution')
+plt.plot(M33Orbit['t'], M33Simulation_separation, c='b', label='Besla Simulation')
+plt.plot(M33Analytic['t'], M33Analytic_separation, c='y', label='Analytic Solution')
 
 #add plot title
 plt.title('Separation of M33 and M31')
@@ -49,8 +49,8 @@ plt.close()
 figure2 = plt.figure(1,figsize=(10,10))
 ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
-plt.plot(M31Orbit['t']/1e6, M33Simulation_velocity, c='r', label='Besla Simulation')
-plt.plot(M33Analytic['t']/1e6, M33Analytic_velocity, c='g', label='Analytic Solution')
+plt.plot(M31Orbit['t'], M33Simulation_velocity, c='r', label='Besla Simulation')
+plt.plot(M33Analytic['t'], M33Analytic_velocity, c='g', label='Analytic Solution')
 
 #add plot title
 plt.title('Velocity Comparison of M33 and M31')

@@ -88,7 +88,7 @@ class M33AnalyticOrbit:
             a_k2 = (-(self.G*M)/((R**2+B**2)**1.5))*y
         #  print a_k2
         if n=='z':
-            a_k2 = (-(self.G*M*B)/((R**2+B**2)**1.5)*np.sqrt(z**2+Zd**2))*z
+            a_k2 = (-(self.G*M*B)/((R**2+B**2)**1.5*np.sqrt(z**2+Zd**2)))*z
             print a_k2
         return a_k2
 ###M31Acceleration
@@ -206,9 +206,9 @@ class M33AnalyticOrbit:
         return i
 
 AnalyticalObject = M33AnalyticOrbit('M33Analytical_orbit.txt')
-M33Analytical_orbit = AnalyticalObject.OrbitIntegrator(0,0.5,10)
+M33Analytical_orbit = AnalyticalObject.OrbitIntegrator(0,0.1,10)
 
 
-print "Question 1: I cannot seem to get the simulation prediction to plot in addition to the analytical now. I would expect the separation to sharply increase around 6 Gyr and continue for the analytical solution. I would also expect M33's velocity to sharply increase around 2 Gyr and 6 Gyr as the galaxy make the passbys."
-print "Question 2: Analytic prediction assumes M33 is a point mass, which is not true; it is a large collection of particles that are also pulling gravitationally on each other, so taking this into account would be extremely difficult, but more accurate."
+print "Question 1: The Analytic prediction is much more smooth than the simulation. Both dip sharply at around 1 Gyr for separation, and increase sharply in velocity, but the analytic continues to increase smoothly in distance until 6.2 GYr, when the merger occurs, then decrease smoothly, while in velocity, it decreases smoothly, then increases after the merger. The simulation predictions are much more sporadic."
+print "Question 2: Analytic prediction assumes M33 is a point mass, which is not true; it is a large collection of particles that are also pulling gravitationally on each other, so taking this into account would be extremely difficult, but more accurate. The simulation is taking into account the changing mass."
 print "Question 3: Milky Way's gravitational pull is relatively unsignificant until the galaxies start to become very near each other and make that first passby. In that case, it's not just M31's mass pulling on M33, but the combined mass of M31 and Milky Way, creating an even stronger attraction."
