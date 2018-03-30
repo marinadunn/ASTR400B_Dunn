@@ -7,8 +7,8 @@ import matplotlib.pyplot as plt
 import matplotlib
 import numpy as np
 
-M31Orbit = np.genfromtxt('M31_Orbit.txt',dtype=None,names=True)
-M33Orbit = np.genfromtxt('M33_Orbit.txt',dtype=None,names=True)
+M31Orbit = np.genfromtxt('Orbit_M31.txt',dtype=None,names=True)
+M33Orbit = np.genfromtxt('Orbit_M33.txt',dtype=None,names=True)
 M33Analytic = np.genfromtxt('M33Analytical_orbit.txt',dtype=None,names=True)
 
 M33Simulation_separation = np.sqrt((M33Orbit['x']-M31Orbit['x'])**2+(M33Orbit['y']-M31Orbit['y'])**2+(M33Orbit['z']-M31Orbit['z'])**2)
@@ -23,7 +23,7 @@ M33Analytic_velocity = np.sqrt((M33Analytic['vx'])**2+(M33Analytic['vy'])**2+M33
 figure1 = plt.figure(1,figsize=(10,10))
 ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
-plt.plot(M31Orbit['t'], M33Simulation_separation, c='b', label='Besla Simulation')
+plt.plot(M31Orbit['t']/1e6, M33Simulation_separation, c='b', label='Besla Simulation')
 plt.plot(M33Analytic['t'], M33Analytic_separation, c='y', label='Analytic Solution')
 
 #add plot title
@@ -34,7 +34,7 @@ plt.xlabel('Time (Gyr)', fontsize=18)
 plt.ylabel('Separation (kpc)', fontsize=18)
 
 #Add plot legend
-plt.legend()
+plt.legend(loc='best',fontsize=9)
 
 #save plot
 plt.savefig('M33-M31_Separation.jpg')
@@ -47,7 +47,7 @@ plt.close()
 figure2 = plt.figure(1,figsize=(10,10))
 ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
-plt.plot(M31Orbit['t'], M33Simulation_velocity, c='r', label='Besla Simulation')
+plt.plot(M31Orbit['t']/1e6, M33Simulation_velocity, c='r', label='Besla Simulation')
 plt.plot(M33Analytic['t'], M33Analytic_velocity, c='g', label='Analytic Solution')
 
 #add plot title
@@ -58,7 +58,7 @@ plt.xlabel('Time (Gyr)', fontsize=18)
 plt.ylabel('Velocity (km/s)', fontsize=18)
 
 #Add plot legend
-plt.legend()
+plt.legend(loc='best',fontsize=9)
 
 #save plot
 plt.savefig('M33-M31_Velocity.jpg')

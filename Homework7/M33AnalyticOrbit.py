@@ -113,9 +113,9 @@ class M33AnalyticOrbit:
         #First, predict M33's COM 3D position at the middle of the timestep (delta_t) using the current COM velocity
         #and position for each component of the position (x,y,z) using the corresponding velocity component.
 
-        x_half = x+(vx*(delta_t/2.))
-        y_half = y+(vy*(delta_t/2.))
-        z_half = z+(vz*(delta_t/2.))
+        x_half = x + (vx*(delta_t/2.))
+        y_half = y + (vy*(delta_t/2.))
+        z_half = z + (vz*(delta_t/2.))
 
         #Second, the COM position and velocity both go through another time step using the acceleration at another
         #timestep
@@ -127,13 +127,13 @@ class M33AnalyticOrbit:
         #delta_t can technically be positive or negative so the simulation can run both forward or backward in time.
         #This is because LeapFrog integrators are 'symplectic.' For our purposes, we want it to be positive because
         #we are calculating future orbits.
-        vx_full = vx+M31Accel_X*delta_t
-        vy_full = vy+M31Accel_Y*delta_t
-        vz_full = vz*M31Accel_Z*delta_t
+        vx_full = vx + M31Accel_X*delta_t
+        vy_full = vy + M31Accel_Y*delta_t
+        vz_full = vz + M31Accel_Z*delta_t
 
-        x_full = x+(vx+vx_full)/2.*delta_t
-        y_full = y+(vy+vy_full)/2.*delta_t
-        z_full = z+(vz+vz_full)/2.*delta_t
+        x_full = x + 0.5*(vx+vx_full)*delta_t
+        y_full = y + 0.5*(vy+vy_full)*delta_t
+        z_full = z + 0.5*(vz+vz_full)*delta_t
 
         return x_full, y_full, z_full, vx_full, vy_full, vz_full
 
@@ -159,15 +159,15 @@ class M33AnalyticOrbit:
         #Now define variable t and integration start at t0, then continue looping with a while loop over LeapFrog until
         #reaching t_max = 10 Gyr; update time, positions, and velocities while doing so. Return results in an array,
         #initialized outside while loop.
-        Orbit = np.zeros(shape=(int((t_max-t0)/delta_t)+2,7))
+        Orbit = np.zeros(((int(np.around(t_max/delta_t))+2),7))
         #store initial values in array
-        t0 = Orbit[0][0]
-        x = Orbit[0][1]
-        y = Orbit[0][2]
-        z = Orbit[0][3]
-        vx = Orbit[0][4]
-        vy = Orbit[0][5]
-        vz = Orbit[0][6]
+        Orbit[0,0] = t0
+        Orbit[0,1] = x
+        Orbit[0,2] = y
+        Orbit[0,3] = z
+        Orbit[0,4] = vx
+        Orbit[0,5] = vy
+        Orbit[0,6] = vz
     
         #loop from t0 to t_max
         t = t0
