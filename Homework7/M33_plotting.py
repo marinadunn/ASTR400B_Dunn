@@ -21,7 +21,7 @@ M33Analytic_velocity = np.sqrt((M33Analytic['vx'])**2+(M33Analytic['vy'])**2+M33
 
 #plot figure
 figure1 = plt.figure(1,figsize=(10,10))
-
+ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
 plt.plot(M31Orbit['t'], M33Simulation_separation, c='b', label='Besla Simulation')
 plt.plot(M33Analytic['t'], M33Analytic_separation, c='y', label='Analytic Solution')
@@ -45,7 +45,7 @@ plt.close()
 
 #plot figure
 figure2 = plt.figure(1,figsize=(10,10))
-
+ax = plt.subplot(111)
 #plot the simulation vs. analytic predictions
 plt.plot(M31Orbit['t'], M33Simulation_velocity, c='r', label='Besla Simulation')
 plt.plot(M33Analytic['t'], M33Analytic_velocity, c='g', label='Analytic Solution')
