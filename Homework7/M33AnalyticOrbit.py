@@ -204,6 +204,6 @@ AnalyticalObject = M33AnalyticOrbit('M33Analytical_orbit.txt')
 M33Analytic_file = AnalyticalObject.OrbitIntegrator(0,0.5,10)
 
 
-print "Question 1: I cannot seem to get the analyrical prediction to plot in addition to the simulation. I would expect the separation to sharply increase around 6 Gyr and continue for the analytical solution. I would also expect M33's velocity to sharply increase around 2 Gttr and 6 Gyr as the galaxy make the passbys."
+print "Question 1: I cannot seem to get the simulation prediction to plot in addition to the analytical now. I would expect the separation to sharply increase around 6 Gyr and continue for the analytical solution. I would also expect M33's velocity to sharply increase around 2 Gyr and 6 Gyr as the galaxy make the passbys."
 print "Question 2: Analytic prediction assumes M33 is a point mass, which is not true; it is a large collection of particles that are also pulling gravitationally on each other, so taking this into account would be extremely difficult, but more accurate."
 print "Question 3: Milky Way's gravitational pull is relatively unsignificant until the galaxies start to become very near each other and make that first passby. In that case, it's not just M31's mass pulling on M33, but the combined mass of M31 and Milky Way, creating an even stronger attraction."
