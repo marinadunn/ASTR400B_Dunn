@@ -107,9 +107,9 @@ class M33AnalyticOrbit:
         #The acceleration term
         vcomp = vx
         if n == 'y':
-            vcomp == vy
+            vcomp = vy
         if n == 'z':
-            vcomp == vz
+            vcomp = vz
        
         a_x = -0.428*(self.G*Msat*np.log(delta)*vcomp)/(r**2*v)
             #print a_x
@@ -232,7 +232,7 @@ class M33AnalyticOrbit:
 
 AnalyticalObject = M33AnalyticOrbit('M33Analytical_orbit.txt')
 M33Analytical_orbit = AnalyticalObject.OrbitIntegrator(0,0.1,10)
-print AnalyticalObject.DynamicalFriction(AnalyticalObject.M33halo,10,10,10,10,10,10,'x')
+print AnalyticalObject.DynamicalFriction(AnalyticalObject.M33halo,10,10,10,10,10,10,'y')
 ###Step 5: Plotting
 
 
