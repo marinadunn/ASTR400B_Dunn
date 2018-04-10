@@ -17,6 +17,7 @@ import numpy as np
 import astropy.units as u
 from ReadFile import Read
 from CenterofMass import CenterOfMass
+from MassProfile import MassEnclosed
 #import plotting modules
 import matplotlib
 import matplotlib.pyplot as plt
@@ -25,8 +26,13 @@ import matplotlib.pyplot as plt
 ptype = 2 #p_type refers to which particle we want, which in this case is 2, since we only want disk particles
 delta = 0.3 #Choosing a tolerance for COM
 
+#---------------------------------------------------
+#Working on reading in files for each galaxy to create new files with just a list of radii and masses for the disks
+#and the use those for the HalfMassRadius and Sersic Profile
+#---------------------------------------------------
+
 #Creating a class that will have a set of functions designed to
-class
+class Sersic:
 
     def __init__(self, filename):
         #Next, for a given filename, we only want the first characters that specify which galaxy we are talking about
@@ -61,9 +67,51 @@ class
         self.vy = self.data['vy'][self.index]
         self.vz = self.data['vz'][self.index]
         self.filename = filename
-        self.MWdisk = 0.075e12 #Msun, taken from Homework 3
-        self.M31disk = 0.12e12 #Msun, taken from Homework 3
+    
+        #initializing mass components
+        #Below values taken from Homework 3
+        self.MWhalo = 1.975e12 #Msun
+        self.MWdisk = 0.075e12 #Msun
+        self.MWbulge = 0.01e12 #Msun
+        self.MWtot = 2.06e12 #Msun
+        self.M31halo = 1.921e12 #Msun
+        self.M31disk = 0.12e12 #Msun
+        self.M31bulge = 0.019e12 #Msun
+        self.M31tot = 2.06e12 #Msun
+    
+    ###Later Step###
+    #defining a function to calculate the Half Mass radius, which will be used to find the Half Light radius of
+    #each galaxy at snapshot 0
+    #Half mass radius is the radius at where half the mass of the galaxy is contained
+    def HalfMassRadius(self,Mtot,R,Mdisk):
+  
+        #set a mass to light ratio, say 1.5
+        ML = 1.5
 
-     def MassEnclosed(self, ptype, radii):
-
-
+        #Half the total mass in units of 1e10
+        HalfMass = Mtot/2.0/1e10
+        
+        #finding where mass profile yields half of total mass, using "np.logical_and"
+        index = np.where(np.logical_and(Mdisk/1e10 < (HalfMass+0.1), Mdisk/1e10 > (HalfMass-0.1)))
+        return R[index]
+                         
+    ###Finding the initial Sersic indexes for each galaxy
+    def MWSersic(Re,r,n,ML,MWtot)
+        ##For MW
+                         
+        #Luminosity
+        L = self.MWtot/ML
+        Ie = L/7.2/np.pi/Re**2
+        
+        return Ie*np.exp(-7.67*((r/Re)**(1.0/n)-1.0))
+       
+    def M31Sersic(Re,r,n,ML,M31tot)
+        ##For M31
+                         
+        #Luminosity
+        L = self.MWtot/ML
+        Ie = L/7.2/np.pi/Re**2
+                         
+        return Ie*np.exp(-7.67*((r/Re)**(1.0/n)-1.0))
+                         
+                         
