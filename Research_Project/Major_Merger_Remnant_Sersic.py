@@ -1,6 +1,6 @@
 #Created by Marina Dunn on 4/3/18
 #Part of Research Project for ASTR400B, Spring 2018, Dr. Gurtina Besla
-#Last edited on 4/3/2018
+#Last edited on 4/10/2018
 ####Goal of this code:
 #Part 1: find the initial brightness profiles for M31 and Milky Way at Snapshot 0 and compare results to
 #current literature
@@ -22,17 +22,30 @@ from MassProfile import MassEnclosed
 import matplotlib
 import matplotlib.pyplot as plt
 
-#Parameters for M31 and MW
-ptype = 2 #p_type refers to which particle we want, which in this case is 2, since we only want disk particles
-delta = 0.3 #Choosing a tolerance for COM
-
 #---------------------------------------------------
 #Working on reading in files for each galaxy to create new files with just a list of radii and masses for the disks
 #and the use those for the HalfMassRadius and Sersic Profile
 #---------------------------------------------------
+#Reading in MW_000.txt and M31_000.txt, and creating MWDiskMass.dat and M31DiskMass.dat
+
+#Read in .dat files
+MWDiskMass = np.genfromtxt('MWDiskMass.dat', dtype=None, names=True)
+M31DiskMass = np.genfromtxt('M31DiskMass.dat', dtype=None, names=True)
+
+MWMass = MWDiskMass['Disk']
+MWR = MWDiskMass['MWR']
+
+M31Mass = M31DiskMass['Disk']
+M31R = M31DiskMass['M31R']
+
+#Parameters for M31 and MW
+ptype = 2 #p_type refers to which particle we want, which in this case is 2, since we only want disk particles
+delta = 0.3 #Choosing a tolerance for COM
+
+
 
 #Creating a class that will have a set of functions designed to
-class Sersic:
+class MergerRemnantSersic:
 
     def __init__(self, filename):
         #Next, for a given filename, we only want the first characters that specify which galaxy we are talking about
@@ -116,5 +129,65 @@ print(Re)
         Ie = L/7.2/np.pi/Re**2
                          
         return Ie*np.exp(-7.67*((r/Re)**(1.0/n)-1.0))
-                         
-                         
+
+###Plot Disk MW density profile vs sersic profile at snapshot 0
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#MW Disk Luminosity density: disk mass profile/volume
+MWDiskI = MWDiskMass['Disk']/4.0*3.0/MWR**3/np.pi/ML
+
+#plot disk luminosity density as a proxy for surface brightness
+plt.semilogy(R,MWDiskI, color='pink',linewidth=2,label='MW Disk Density')
+#add sersic fit to surface brightess sersic fit
+plt.semilogy(R,Sersic(Re,MWR,4,ML,MWDiskMass), color='red',linewidth=2,label='Initial Sersic')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel('Log(I)', fontsize=16)
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('MW_Disk_Sersic_Profile.eps',rasterized=True, dpi=350)
+plt.close()
+
+#----------------------------------------------------------------------------------------------------------------
+
+###Plot Disk M31 density profile vs sersic profile at snapshot 0
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#MW Disk Luminosity density: disk mass profile/volume
+M31DiskI = M31DiskMass['Disk']/4.0*3.0/M31R**3/np.pi/ML
+
+#plot disk luminosity density as a proxy for surface brightness
+plt.semilogy(R,M31DiskI, color='pink',linewidth=2,label='M31 Disk Density')
+#add sersic fit to surface brightess sersic fit
+plt.semilogy(R,Sersic(Re,M31R,4,ML,MWDiskMass), color='red',linewidth=2,label='Initial Sersic')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel('Log(I)', fontsize=16)
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('M31_Disk_Sersic_Profile.eps',rasterized=True, dpi=350)
+plt.close()
