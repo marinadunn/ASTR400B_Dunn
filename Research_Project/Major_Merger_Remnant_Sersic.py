@@ -79,22 +79,25 @@ class Sersic:
         self.M31bulge = 0.019e12 #Msun
         self.M31tot = 2.06e12 #Msun
     
-    ###Later Step###
+###Later Step###
+#set a mass to light ratio, say 1.5
+ML = 1.5
     #defining a function to calculate the Half Mass radius, which will be used to find the Half Light radius of
     #each galaxy at snapshot 0
     #Half mass radius is the radius at where half the mass of the galaxy is contained
-    def HalfMassRadius(self,Mtot,R,Mdisk):
-  
-        #set a mass to light ratio, say 1.5
-        ML = 1.5
-
+    #inputs are disk mass profile, radius, total mass of disk
+    def HalfMassRadius(self,Dmass,R,Mtot):
+        
         #Half the total mass in units of 1e10
         HalfMass = Mtot/2.0/1e10
         
         #finding where mass profile yields half of total mass, using "np.logical_and"
-        index = np.where(np.logical_and(Mdisk/1e10 < (HalfMass+0.1), Mdisk/1e10 > (HalfMass-0.1)))
+        index = np.where(np.logical_and(Dmass/1e10 < (HalfMass+0.1), Dmass/1e10 > (HalfMass-0.1)))
         return R[index]
-                         
+
+Re = HalfMassRadius(DiskMass['Disk'],DiskMass['R'],Dtot)
+print(Re)
+    
     ###Finding the initial Sersic indexes for each galaxy
     def MWSersic(Re,r,n,ML,MWtot)
         ##For MW
