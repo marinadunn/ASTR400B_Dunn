@@ -1,7 +1,8 @@
 #Created by Marina Dunn on February 7, 2018
 #ASTR400B, Spring 2018, Dr. Gurtina Besla, Homework 5
 
-#The goal of this program is to calculate the mass distribution of a galaxy at Snapnumber 0, and subsequently use this to find each
+#The goal of this program is to calculate the mass distribution of a galaxy at Snapnumber 0, and subsequently
+#use this to find each
 #galaxy's rotation curve
 
 #Import relevant modules first
@@ -17,7 +18,8 @@ import matplotlib.pyplot as plt
 #inputs for this class will be the galaxy name (string) and snapshot number
 class MassProfile:
     def __init__(self, galaxy, snap):
-        #Next, for a given filename, we only want the first characters that specify which galaxy we are talking about
+        #Next, for a given filename, we only want the first characters that specify which galaxy we are talking
+        #about
         #We will add a string of the filenumber to the value "000"
         ilbl = '000' + str(snap)
         #Then, we want the part of the filename that specifies the snapnumber
@@ -27,9 +29,7 @@ class MassProfile:
         #i.e. if I wanted "MW_010.txt", I would input "MW" and "10"
         #optional print statement to see if filename is printed correctly
         #print filename
-    
-        self.delta = 0.3 #set a value for the tolerance
-    
+        
         #Insert gravitational constant, need to adjust units; using the G below, in units of kpc^3/Gyr^2/Msun
         #Stores G as global property
         self.G = G.to(u.kpc*u.km**2/u.s**2/u.Msun)
@@ -41,59 +41,59 @@ class MassProfile:
         self.gname = galaxy
     
         #Now we will store the positions and mass of the particles
-        self.m = self.data['m']
-        self.x = self.data['x']
-        self.y = self.data['y']
-        self.z = self.data['z']
+        self.m = self.data['m']#*u.Msun
+        self.x = self.data['x']*u.kpc
+        self.y = self.data['y']*u.kpc
+        self.z = self.data['z']*u.kpc
     
-    #Next we will define a function that, with given a radius (kpc) fora galaxy's COM position and a vector component, will calculate its mass
+    #Next we will define a function that, with given a radius (kpc) fora galaxy's COM position and a vector
+    #component, will calculate its mass
     #Inputs will be particle type, and an array containing radii for COM
     def MassEnclosed(self, ptype, radii):
-        #For all particles of a specific ptype
+        #Finding positions of particles in COM frame
+        COM = CenterOfMass(self.filename,2)
+        
+        #Store COM position of galaxy
+        COMPgal = COM.COM_P(1.0,2.0)
+
+        #For all particles of a specific ptype, creating an array that stores an index of particles
         index = np.where(self.data['type'] == ptype)
         
-        
         #Now we will store the positions and mass of the particles for certain ptype
-        m = self.m[index]
-        x = self.x[index]
-        y = self.y[index]
-        z = self.z[index]
-        
-        #Finding positions of particles in COM frame
-        COMgal = CenterOfMass(self.filename, ptype)
-        print COMgal.COM_P(self.delta)
-        COMgal_Xcom, COMgal_Ycom, COMgal_Zcom = COMgal.COM_P(self.delta)
-        radius = np.sqrt((self.x[index]-COMgal_Xcom)**2. + (self.y[index]-COMgal_Ycom)**2. + (self.z[index]-COMgal_Zcom)**2. )
+        mG = self.m[index]
+        xG = self.x[index] - COMPgal[0]
+        yG = self.y[index] - COMPgal[1]
+        zG = self.z[index] - COMPgal[2]
+        #Computing magnitude of 3D radius
+        radius = np.sqrt(xG**2. + yG**2. + zG**2. )
 
         #initialize the array using np.zeros, storing the mass
-        mass = np.zeros(len(radii))
-        
-        pmass = self.m[index]
+        mass = np.zeros(np.size(radii))
       
-        #We want to loop over the radius array in order to define particles within a given radius for every array element
-        for i in range(len(radii)):
+        #We want to loop over the radius array in order to define particles within a given radius for every
+        #array element
+        for i in range(np.size(radii)):
             #Find the mass within the radius
-            j = np.where(radius<=radii[i])[0]
-            mass[i] = np.sum(m[j])*1e10
+            indexR = np.where(radius <= radii[i]*u.kpc)
+            mass[i] = np.sum(mG[indexR])*1e10
         
         #Want to return an array containing masses in units of solar masses
-        return mass
+        return mass*u.Msun
     
-    #Now we will create a function that will take in the radii array and return a mass array (in solar masses) containing the total mass of all the
+    #Now we will create a function that will take in the radii array and return a mass array (in solar masses)
+    #containing the total mass of all the
     #galactic components(halo+disk+bulge(if applicable))
     def MassEnclosedTotal(self, radii):
         #recall ptype = 1 is for halo, 2 is for disk, 3 is for bulge
         #M33 does not have a bulge component, which will have to be accounted for
         halomass = self.MassEnclosed(1, radii) #ptype = 1
         diskmass = self.MassEnclosed(2, radii) #ptype = 2
-                      
-        if self.gname == 'M33':
-            Mtot = halomass + diskmass
-       
-        else:
-            bulgemass = self.MassEnclosed(3, radii) #ptype = 3
-            Mtot = halomass + diskmass + bulgemass
+        bulgemass = self.MassEnclosed(3, radii) #ptype = 3
+        Mtot = halomass + diskmass + bulgemass
         
+        if (self.gname == 'M33'): #M33 doesn't have bulge component
+            Mtot = halomass + diskmass
+    
         return Mtot
 
     #Next, we will create a function that can compute the enclosed mass within a given radius (kpc), using the theoretical Hernquist profile
@@ -102,40 +102,42 @@ class MassProfile:
     #Consult InClassLab2 for similar problem for finding halo mass using Hernquist profile
     #input: radius array (kpc), scale factor 'a', and halo mass Mhalo
     def HernquistMass(self, radii, a, Mhalo):
-        HernquistMass = (Mhalo*(radii**2.))/((radii+a)**2.)*u.Msun
+        HernquistMass = Mhalo*radii**2./(radii+a)**2.*u.Msun
         #return halo mass in solar masses
         return HernquistMass
                       
     #Creating a function that takes in the radii array and ptype, and returns an array containing circular speeeds in [km/s]
     def CircularVelocity(self, ptype, radii):
         #Find enclosed mass of certain ptype
-        Mass = self.MassEnclosed(ptype, radii)*u.Msun
+        mass = self.MassEnclosed(ptype, radii)
         
         #Calculate circular velocity
-        circular_velocity = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
-        return circular_velocity
+        Vcirc = np.around(np.sqrt(self.G*mass/radii/u.kpc),2)
+        return Vcirc
     
     #Defining a function that takes in the radius array, and gives back an array of circular velocities in [km/s], using total mass enclosed
     def CircularVelocityTotal(self, radii):
          #Find enclosed mass of given radii
-        Mass = self.MassEnclosedTotal(radii)*u.Msun
+        mass = self.MassEnclosedTotal(radii)
         
         #Calculate circular velocity
-        circular_velocity_total = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
+        Vcirc_tot = np.around(np.sqrt((self.G*mass)/(radii/u.kpc)),2)
                       
-        return circular_velocity_total
+        return Vcirc_tot
                       
     #Defining a function that takes in radius array, scale factor 'a', and halo mass Mhalo, and computes circular speed based on the Hernquist mass
     #profile, and returns an array of circular velocities in [km/s]
     def HernquistVCirc(self, radii, Mhalo, a):
         #Find enclosed mass of given radii
-        Mass = self.HernquistMass(radii, Mhalo, a)*u.Msun
+        mass = self.HernquistMass(radii, Mhalo, a)*u.Msun
                       
         #Calculate circular velocity
-        HernquistVCirc = np.around(np.sqrt((self.G*Mass)/(radii*u.kpc)),2)
+        HernquistVCirc = np.around(np.sqrt((self.G*mass)/(radii/u.kpc)),2)
                       
         return HernquistVCirc
-
+#test
+RR = 30
+testR = np.arange(0.1,RR+1,1.0)
 
 ###Calculations & Plotting###
 
@@ -143,110 +145,207 @@ class MassProfile:
                       
 #Creating arrays of galaxy names, radii, and scale factor 'a' based on Mass Profile plots
                       
-galaxies = ['MW', 'M31', 'M33']
-Radii = np.arange(0.1,30,0.75)
+MW = MassProfile("MW",0)
+M31 = MassProfile("M31",0)
+M33 = MassProfile("M33",0)
+
+#Creating an array to store radii, from 0 to 30 kpc, in intervals of 0.5 kpc
+Radii = np.arange(0.5,30,0.5)
 a = [62,62,25]
 
-for ii in range(len(galaxies)):
-    print galaxies[ii]
-    #Initialize galaxy
-    gal = MassProfile(galaxies[ii], 0)
+##Milky Way Mass Profile
+MW_Mtot = 1.97e12 #taken from Homework 3
+MW_scale = 61.0 #MW Hernquist scale length
                       
-    #Find halo and disk masses within radii
-    Mhalo = gal.MassEnclosed(1, Radii)
-    Mdisk = gal.MassEnclosed(2, Radii)
-              
-    #Find bulge masses within radii, except for M33
-    if gal.gname != 'M33':
-        Mbulge = gal.MassEnclosed(3, Radii)
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+    
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, MW.MassEnclosed(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, MW.MassEnclosed(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, MW.MassEnclosed(3,Radii), color='red', label='Bulge Mass')
+plt.semilogy(Radii, MW.MassEnclosedTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, MW.HernquistMass(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =61 kpc')
                       
-    #Find total masses within radii
-    Mtot = gal.MassEnclosedTotal(Radii)
-        
-    #Find total halo mass
-    index = np.where(gal.data['type'] == 1) #ptype = 1 for halo
-    m = gal.data['m'][index]
-    MhaloTot = np.sum(m)*1e10
-                      
-    #Find Hernquist Mass within radii
-    Hernquistmass = gal.HernquistMass(Radii, a[ii], MhaloTot)
-                      
-    #Plot
-    fig = plt.figure()
-                      
-    #Plot the Masses vs. Radius
-    plt.semilogy(Radii, Mhalo, color='pink', label='Halo Mass')
-    plt.semilogy(Radii, Mdisk, color='purple', label='Disk Mass')
-    if gal.gname != 'M33':
-        plt.semilogy(Radii, Mbulge, color='red', label='Bulge Mass')
-    plt.semilogy(Radii, Mtot, color='yellow', label='Total Mass')
-    plt.semilogy(Radii, Hernquistmass, color='blue', label='Hernquist Mass, a =' +str(a[ii]))
-                      
-    # Adding the axis labels and title
-    plt.xlabel('Radius (kpc)', fontsize=16)
-    plt.ylabel('Mass (Msun)', fontsize=16)
-    plt.title(galaxies[ii] + ' Mass Profile')
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel(r'Log(Mass Enclosed(M$_\odot$))', fontsize=16)
+plt.title('MW Mass Profile')
 
-    #adjust tick label font size
-    label_size = 16
-    matplotlib.rcParams['xtick.labelsize'] = label_size
-    matplotlib.rcParams['ytick.labelsize'] = label_size
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
 
-    # add a legend with some customizations.
-    plt.legend(loc='best',fontsize='medium')
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
 
-    # Save to a file
-    plt.savefig(galaxies[ii] + '_Mass_Profile.eps')
-    plt.close()
-#Technically the next part does not have to be split up into another for loop, it can all be in one loop, but I have separated them
-for jj in range(len(galaxies)):
-    #Initialize galaxy
-    gal = MassProfile(galaxies[jj], 0)
-                     
-    #Find halo and diak circular velocities within radii
-    VCircHalo = gal.CircularVelocity(1, Radii)
-    VCircDisk = gal.CircularVelocity(2, Radii)
-                     
-    #Find bulge circular velocity within radii, except for M33
-    if gal.gname != 'M33':
-        VCircBulge = gal.CircularVelocity(3, Radii)
-                     
-    #Find total circular velocities within radii
-    VCircTot = gal.CircularVelocityTotal(Radii)
-                     
-    #Find total halo mass
-    index = np.where(gal.data['type'] == 1)
-    m = gal.data['m'][index]
-    MhaloTot = np.sum(m)*1e10
-                     
-    #Find Hernquist Mass within radii
-    VCircHernquist = gal.HernquistVCirc(Radii, a[jj], MhaloTot)
-                     
-    #Plot
-    fig = plt.figure()
-                     
-    #Plot the Velocities vs. Radius
-    plt.semilogy(Radii, VCircHalo, color='pink', label='Halo Circular Velocity')
-    plt.semilogy(Radii, VCircDisk, color='purple', label='Disk Circular Velocity')
-    if gal.gname != 'M33':
-        plt.semilogy(Radii, VCircBulge, color='red', label='Bulge Circular Velocity')
-    plt.semilogy(Radii, VCircTot, color='yellow', label='Total Circular Velocity')
-    plt.semilogy(Radii, VCircHernquist, color='blue', label='Hernquist Circular Velocity, a =' +str(a[jj]))
-                                  
-    # Adding the axis labels and title
-    plt.xlabel('Radius (kpc)', fontsize=16)
-    plt.ylabel('Circular Velocity (km/s)', fontsize=16)
-    plt.title(galaxies[jj] + ' Velocity Profile')
-                                  
-                                  
-    #adjust tick label font size
-    label_size = 16
-    matplotlib.rcParams['xtick.labelsize'] = label_size
-    matplotlib.rcParams['ytick.labelsize'] = label_size
-                                  
-    # add a legend with some customizations.
-    plt.legend(loc='best',fontsize='medium')
-                                  
-    # Save to a file
-    plt.savefig(galaxies[jj] + '_Velocity_Profile.eps')
-    plt.close()
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('MW_Mass_Profile.eps',rasterized=True, dpi=350)
+plt.close()
+
+#------------------------------------------------------------
+##Plot M31 Mass Profile
+
+M31_Mtot = 1.921e12 #taken from Homework 3
+M31_scale = 62.0 #M31 Hernquist scale length
+
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, M31.MassEnclosed(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, M31.MassEnclosed(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, M31.MassEnclosed(3,Radii), color='red', label='Bulge Mass')
+plt.semilogy(Radii, M31.MassEnclosedTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, M31.HernquistMass(Radii,M31_scale,M31_Mtot), color='blue', label='Hernquist Mass, a =62 kpc')
+ 
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel(r'Log(Mass Enclosed(M$_\odot$))', fontsize=16)
+plt.title('M31 Mass Profile')
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('M31_Mass_Profile.eps',rasterized=True, dpi=350)
+plt.close()
+    
+#------------------------------------------------------------
+##Plot M33 Mass Profile
+M33_Mtot = 0.187e12 #taken from Homework 3
+M33_scale = 25.0 #M33 Hernquist scale length
+
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, M33.MassEnclosed(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, M33.MassEnclosed(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, M33.MassEnclosedTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, M33.HernquistMass(Radii,M33_scale,M33_Mtot), color='blue', label='Hernquist Mass, a =25 kpc')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel(r'Log(Mass Enclosed(M$_\odot$))', fontsize=16)
+plt.title('M33 Mass Profile')
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('M33_Mass_Profile.eps',rasterized=True, dpi=350)
+plt.close()
+    
+#------------------------------------------------------------
+##Plot MW Circular Velocity
+
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, MW.CircularVelocity(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, MW.CircularVelocity(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, MW.CircularVelocity(3,Radii), color='purple', label='Bulge Mass')
+plt.semilogy(Radii, MW.CircularVelocityTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, MW.HernquistVCirc(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =61 kpc')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel('Circular Velocity (km/s)', fontsize=16)
+plt.title('MW Circular Velocity')
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('MW_Circular_Velocity.eps',rasterized=True, dpi=350)
+plt.close()
+    
+#------------------------------------------------------------
+##Plot M31 Circular Velocity
+
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, M31.CircularVelocity(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, M31.CircularVelocity(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, M31.CircularVelocity(3,Radii), color='purple', label='Bulge Mass')
+plt.semilogy(Radii, M31.CircularVelocityTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, M31.HernquistVCirc(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =62 kpc')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel('Circular Velocity (km/s)', fontsize=16)
+plt.title('M31 Circular Velocity')
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('M31_Circular_Velocity.eps',rasterized=True, dpi=350)
+plt.close()
+    
+#------------------------------------------------------------
+##Plot M33 Circular Velocity
+
+#Plot
+fig = plt.figure(figsize=(10,10))
+ax = plt.subplot(111)
+
+#Plot the Masses vs. Radius
+plt.semilogy(Radii, M33.CircularVelocity(1,Radii), color='pink', label='Halo Mass')
+plt.semilogy(Radii, M33.CircularVelocity(2,Radii), color='purple', label='Disk Mass')
+plt.semilogy(Radii, M33.CircularVelocityTotal(Radii), color='yellow', label='Total Mass')
+plt.semilogy(Radii, M33.HernquistVCirc(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =25 kpc')
+
+# Adding the axis labels and title
+plt.xlabel('Radius (kpc)', fontsize=16)
+plt.ylabel('Circular Velocity (km/s)', fontsize=16)
+plt.title('M33 Circular Velocity')
+
+#adjust tick label font size
+label_size = 16
+matplotlib.rcParams['xtick.labelsize'] = label_size
+matplotlib.rcParams['ytick.labelsize'] = label_size
+
+# add a legend with some customizations.
+plt.legend(loc='best',fontsize='medium')
+
+# Save to a file
+ax.set_rasterized(True)
+plt.savefig('M33_Circular_Velocity.eps',rasterized=True, dpi=350)
+plt.close()
+
