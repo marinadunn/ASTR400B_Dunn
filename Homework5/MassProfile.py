@@ -264,7 +264,7 @@ ax = plt.subplot(111)
 #Plot the Masses vs. Radius
 plt.semilogy(Radii, MW.CircularVelocity(1,Radii), color='pink', label='Halo Mass')
 plt.semilogy(Radii, MW.CircularVelocity(2,Radii), color='purple', label='Disk Mass')
-plt.semilogy(Radii, MW.CircularVelocity(3,Radii), color='purple', label='Bulge Mass')
+plt.semilogy(Radii, MW.CircularVelocity(3,Radii), color='red', label='Bulge Mass')
 plt.semilogy(Radii, MW.CircularVelocityTotal(Radii), color='yellow', label='Total Mass')
 plt.semilogy(Radii, MW.HernquistVCirc(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =61 kpc')
 
@@ -296,7 +296,7 @@ ax = plt.subplot(111)
 #Plot the Masses vs. Radius
 plt.semilogy(Radii, M31.CircularVelocity(1,Radii), color='pink', label='Halo Mass')
 plt.semilogy(Radii, M31.CircularVelocity(2,Radii), color='purple', label='Disk Mass')
-plt.semilogy(Radii, M31.CircularVelocity(3,Radii), color='purple', label='Bulge Mass')
+plt.semilogy(Radii, M31.CircularVelocity(3,Radii), color='red', label='Bulge Mass')
 plt.semilogy(Radii, M31.CircularVelocityTotal(Radii), color='yellow', label='Total Mass')
 plt.semilogy(Radii, M31.HernquistVCirc(Radii,MW_scale,MW_Mtot), color='blue', label='Hernquist Mass, a =62 kpc')
 
