@@ -22,7 +22,7 @@ from astropy.modeling import models, fitting
 #get_ipython().magic('matplotlib inline')
 
 class InitialMass:
-    def __init__(self, galaxy, snap):
+    def __init__(self, galaxy, snap, radii):
         #Next, for a given filename, we only want the first characters that specify which galaxy we are talking
         #about
         #We will add a string of the filenumber to the value "000"
@@ -53,14 +53,14 @@ class InitialMass:
 
         #mass components
         #Below values taken from Homework 3
-        MWhalo = 1.975e12 #Msun
-        MWdisk = 0.075e12 #Msun
-        MWbulge = 0.01e12 #Msun
-        MWtot = 2.06e12 #Msun
-        M31halo = 1.921e12 #Msun
-        M31disk = 0.12e12 #Msun
-        M31bulge = 0.019e12 #Msun
-        M31tot = 2.06e12 #Msun
+        self.MWhalo = 1.975e12 #Msun
+        self.MWdisk = 0.075e12 #Msun
+        self.MWbulge = 0.01e12 #Msun
+        self.MWtot = 2.06e12 #Msun
+        self.M31halo = 1.921e12 #Msun
+        self.M31disk = 0.12e12 #Msun
+        self.M31bulge = 0.019e12 #Msun
+        self.M31tot = 2.06e12 #Msun
 
     #Next we will define a function that, with given a radius (kpc) fora galaxy's COM position and a vector
     #component, will calculate its mass
@@ -119,7 +119,7 @@ a = [62,62,25]
 ##Milky Way Mass Profile
 MW_Mtot = 1.97e12 #taken from Homework 3
 MW_scale = 61.0 #MW Hernquist scale length
-"""
+
 #Mass profiles for both galaxies at different key snapshots
 MW_Mass1 =  InitialMass('MW', 0, R)
 MW_Mass2 =  InitialMass('MW', 70, R)
@@ -132,14 +132,14 @@ M31_Mass2 =  InitialMass('M31', 70, R)
 M31_Mass3 =  InitialMass('M31', 480, R)
 M31_Mass4 =  InitialMass('M31', 710, R)
 M31_Mass5 = InitialMass('M31', 800, R)
-   """
+
 #Plot mass profiles
 fig = plt.figure(figsize=(10,10))
 ax = plt.subplot(111)
 
 plt.semilogy(R,MW.MassEnclosed(2,0),color='red',linewidth=2,label='MW Disk Mass')
 plt.semilogy(R,M31.MassEnclosed(2,0),color='red',linewidth=2,label='M31 Disk Mass')
-"""
+
 plt.semilogy(R,MW_Mass1,color='red',linewidth=2,label='MW 0 Gyr')
 plt.semilogy(R,MW_Mass2,color='orange',linewidth=2,label='MW 1 Gyr')
 plt.semilogy(R,MW_Mass3,color='yellow',linewidth=2,label='MW 6.86 Gyr')
@@ -151,7 +151,7 @@ plt.semilogy(R,M31_Mass2,color='pink',linewidth=2,label='M31 1 Gyr')
 plt.semilogy(R,M31_Mass3,color='brown',linewidth=2,label='M31 6.86 Gyr')
 plt.semilogy(R,M31_Mass4,color='firebrick',linewidth=2,label='M31 10.14 Gyr')
 plt.semilogy(R,M31_Mass5,color='aqua',linewidth=2,label='M31 12 Gyr')
-        """
+
 # Adding the axis labels and title
 plt.xlabel('Radius (kpc)', fontsize=16)
 plt.ylabel(r'Log(Mass Enclosed(M$_\odot$)', fontsize=16)
