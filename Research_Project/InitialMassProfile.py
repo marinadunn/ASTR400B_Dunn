@@ -93,7 +93,7 @@ class InitialMass:
         for i in range(np.size(radii)):
             #Find the mass within a thin shell with volume 4/3*pi*(r1^3-r2^3), where r1 and r2 define the width of the shell
             V = (4./3.)*(np.pi)*(radii[i]**3 - radii[i - 1]**3)
-            indexR = np.where((radius<radii[i]) & (r>radii[i - 1]))
+            indexR = np.where((radius<radii[i]) & (radius>radii[i - 1]))
             #Find the mass within the radius
             print radii[i]
             print np.shape(index)
@@ -110,7 +110,7 @@ M31 = InitialMass("M31",0)
 print M31
 
 #radius array out to 30kpc
-R = np.arange(0.01,30,0.5)
+R = np.arange(0.5,30,0.5)
 a = [62,62,25]
 
 #MWDiskMass = MW.InitialMassEnclosed(2,R)
@@ -137,8 +137,8 @@ M31_Mass5 = InitialMass('M31', 800, R)
 fig = plt.figure(figsize=(10,10))
 ax = plt.subplot(111)
 
-plt.semilogy(R,MW.MassEnclosed(2,R),color='red',linewidth=2,label='MW Disk Mass')
-plt.semilogy(R,M31.MassEnclosed(2,R),color='red',linewidth=2,label='M31 Disk Mass')
+plt.semilogy(R,MW.MassEnclosed(2,0),color='red',linewidth=2,label='MW Disk Mass')
+plt.semilogy(R,M31.MassEnclosed(2,0),color='red',linewidth=2,label='M31 Disk Mass')
 """
 plt.semilogy(R,MW_Mass1,color='red',linewidth=2,label='MW 0 Gyr')
 plt.semilogy(R,MW_Mass2,color='orange',linewidth=2,label='MW 1 Gyr')
