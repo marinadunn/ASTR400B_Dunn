@@ -1,6 +1,6 @@
 #Created by Marina Dunn on 4/3/18
 #Part of Research Project for ASTR400B, Spring 2018, Dr. Gurtina Besla
-#Last edited on 5/4/2018
+#Last edited on 5/5/2018
 ####Goal of this code:
 #Part 1: find the initial brightness profiles for M31 and Milky Way at Snapshot 0 and compare results to
 #current literature
@@ -22,10 +22,7 @@ from astropy.modeling import models, fitting
 #get_ipython().magic('matplotlib inline')
 
 
-#Parameters for M31 and MW
-ML = 1.5 #setting a mass-to-light ratio of about 1.5
-
-def InitialMassProfile(galaxy, snap, radii):
+def InitialMassProfile(galaxy, snap):
     #Next, for a given filename, we only want the first characters that specify which galaxy we are talking about
     #We will add a string of the filenumber to the value "000"
     ilbl = '000' + str(snap)
@@ -41,15 +38,15 @@ def InitialMassProfile(galaxy, snap, radii):
     time, total_particles, data = Read(filename)
     
     #This stores the mass, positions, velocities of only the particles of the given type
-    m = data['m']*1e10
-    x = data['x']
-    y = data['y']
-    z = data['z']
+    m = data['m']
+    x = data['x']*u.kpc
+    y = data['y']*u.kpc
+    z = data['z']*u.kpc
     #vx = data['vx'][index]
     #vy = data['vy'][index]
     #vz = data['vz'][index]
 
-    #initializing mass components
+    #mass components
     #Below values taken from Homework 3
     MWhalo = 1.975e12 #Msun
     MWdisk = 0.075e12 #Msun
@@ -60,19 +57,16 @@ def InitialMassProfile(galaxy, snap, radii):
     M31bulge = 0.019e12 #Msun
     M31tot = 2.06e12 #Msun
 
+def InitialMassEnclosed(ptype, radii):
     #Finding positions of particles in COM frame
     COM = CenterOfMass(filename,2)
 
     #Store COM position of galaxy
     COMPgal = COM.COM_P(1.0,2.0) #Choosing a tolerance and VolDec for COM
     
-    #mass profile of the objects
-    mass_profile = MassProfile(galaxy,snap)
-    DiskMass = mass_profile.MassEnclosed(2,radii)
-    
     #For all particles of a specific ptype, creating an array that stores an index of particles of desired Ptype
     #In this case, we want ptype=2 for disk particles
-    index = np.where(data['type'] == 2)
+    index = np.where(data['type'] == ptype)
     
     #Now we will store the positions and mass of the particles for certain ptype
     mG = m[index]
@@ -87,29 +81,37 @@ def InitialMassProfile(galaxy, snap, radii):
     #initialize the array using np.zeros, storing the mass
     mass = np.zeros(np.size(radii))
     
+    
     #We want to loop over the radius array in order to define particles within a given radius for every
     #array element
     for i in range(np.size(radii)):
         #Find the mass within a thin shell with volume 4/3*pi*(r1^3-r2^3), where r1 and r2 define the width of the shell
         V = (4./3.)*(np.pi)*(radii[i]**3. - radii[i - 1]**3.)
-        index = np.where((r<radii[i]) & (r>radii[i - 1.]))
+        indexR = np.where((r<radii[i]) & (r>radii[i - 1.]))
         #Find the mass within the radius
         print radii[i]
         print np.shape(index)
-        mass[i - 1] = np.sum(mG[index])
+        mass[i - 1] = np.sum(mG[indexR])
             
     #Want to return an array containing masses in units of solar masses
-    return mass#*u.Msun
+    return mass*u.Msun
 
 #radius array out to 30kpc
 R = np.arange(0.01,30,0.5)
 
-MW = InitialMassProfile("MW",0,R)
-M31 = InitialMassProfile("M31",0,R)
+#mass profile of the objects
+MW = InitialMassProfile("MW",0)
+print MW
+M31 = InitialMassProfile("M31",0)
+print M31
+
+MWDiskMass = MW.InitialMassEnclosed(2,R)
+M31DiskMass = M31.InitialMassEnclosed(2,R)
+
 
 
 #Mass profiles for both galaxies at different key snapshots
-MW_Mass1 = InitialMassProfile('MW', 0, R)
+MW_Mass1 =  InitialMassProfile('MW', 0, R)
 MW_Mass2 =  InitialMassProfile('MW', 70, R)
 MW_Mass3 =  InitialMassProfile('MW', 480, R)
 MW_Mass4 =  InitialMassProfile('MW', 710, R)
