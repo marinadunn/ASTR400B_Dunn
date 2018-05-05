@@ -21,6 +21,7 @@ from MassProfile import *
 import matplotlib
 import matplotlib.pyplot as plt
 from astropy.modeling import models, fitting
+get_ipython().magic('matplotlib inline')
 
 
 #Parameters for M31 and MW
@@ -180,7 +181,9 @@ while (r < 20 ): #set up while loop
     delta_r = 0.2
     np.where((r + delta_r) & (r - delta_r)): #setting an upper and lower limits for the shell width
     r = r + 2.*delta_r #Want delta_r to be small but don't want to overlap with other shells so that particles are counted twice
-    mass = np.zeros(
+    index = np.where(self.data['type'] == ptype)
+        
+        mass = np.zeros(
 #set a mass to light ratio, say 1.5
 ML = 1.5
     #defining a function to calculate the Half Mass radius, which will be used to find the Half Light radius of
