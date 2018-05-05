@@ -123,7 +123,7 @@ print M31_HMR
 #M31 Disk Luminosity density: disk mass profile/volume
 M31DiskI = Dmass/4.0*3.0/R**3/np.pi/ML
                         
-"""
+
 # I want to find the initial surface brightness profiles for M31 and Milky Way at snapshot 0 and compare to Sersic
 #indices.
 #----------------------------------------------------------------------------------------------------------------
@@ -137,12 +137,12 @@ fig = plt.figure(figsize=(10,10))
 ax = plt.subplot(111)
                         
 #plot disk luminosity density as a proxy for surface brightness
-plt.semilogy(Radii,MWDiskI, color='green',linewidth=2,label='MW Disk Density')
+plt.semilogy(Radii,MWdisk, color='green',linewidth=2,label='MW Disk Mass')
 #add sersic fit to surface brightess sersic fit
 plt.semilogy(Radii,Sersic(MW_HMR,Radii,4,ML,MWdisk), color='red',linewidth=2,label='MW Initial Sersic')
                         
 #plot disk luminosity density as a proxy for surface brightness
-plt.semilogy(Radii,M31DiskI, color='pink',linewidth=2,label='M31 Disk Density')
+plt.semilogy(Radii,M31disk, color='pink',linewidth=2,label='M31 Disk Mass')
 #Could also use scipy.optimize.curve_fit instead of astropy.modeling for this step if desired
 #add sersic fit to surface brightess sersic fit
 plt.semilogy(Radii,Sersic(M31_HMR,Radii,4,ML,M31disk), color='blue',linewidth=2,label='M31 Initial Sersic')
@@ -176,5 +176,5 @@ plt.close()
                         
 #----------------------------------------------------------------------------------------------------------------
 
-"""
+
                         
