@@ -1,5 +1,5 @@
 # Last Edited: May 28, 2020
-#Marina Dunn, Homework 4, ASTR400B
+# Marina Dunn, Homework 4, ASTR400B
 # Center of Mass Position and Velocity
 
 # First, import relevant modules
