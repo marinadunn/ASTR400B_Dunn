@@ -1,5 +1,6 @@
-#Created by Marina Dunn on February 7, 2018
-#ASTR400B, Spring 2018, Dr. Gurtina Besla, Homework 5
+# Created by Marina Dunn on February 7, 2018
+# Last Edited: May 28, 2020
+# ASTR400B, Spring 2018, Dr. Gurtina Besla, Homework 5
 
 #The goal of this program is to calculate the mass distribution of a galaxy at Snapnumber 0, and subsequently
 #use this to find each
