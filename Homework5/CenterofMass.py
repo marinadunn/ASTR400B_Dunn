@@ -1,5 +1,5 @@
-# Edited original file on February 4, 2018
-#Marina Dunn, Homework 4, ASTR400B
+# Last Edited: May 28, 2020
+# Marina Dunn, Homework 4, ASTR400B
 # Center of Mass Position and Velocity
 
 # First, import relevant modules
@@ -47,7 +47,7 @@ class CenterOfMass:
     
     #Defining a function that will call COMdefine and take in the position and velocity vectors for a
     #given particle type, and return the center of mass for a galaxy
-    def COM_P(self, delta, VolDec):
+    def COM_P(self, delta):
         #Call COMdefine to compute a first estimate for COM position, and use "self" again since it has been defined inside of the class
         Xcom, Ycom, Zcom = self.COMdefine(self.x,self.y,self.z,self.m)
         
@@ -66,38 +66,38 @@ class CenterOfMass:
         #We want to find the max 3D separation between the COM coordinates and the reference frame, then divide
         #that by half. We will continue to do this in order to check if the position is converging.
         #print RNEW
-        RMAX = np.max(RNEW)/VolDec
+        RMAX = np.max(RNEW)/2.
         
         #Setting an initial value for the difference
         diff = 100.0
         #Creating iteration to continue if the separation in COM positions is bigger than delta
         while(diff > delta):
                 #Defining particles within a certain radius
-                index = np.where(RNEW<RMAX)
+                index2 = np.where(RNEW<RMAX)
 
                 #Difference in particle and new COM positions
-                X2 = self.x[index]
-                Y2 = self.y[index]
-                Z2 = self.z[index]
-                m2 = self.m[index]
+                X2 = self.x[index2]
+                Y2 = self.y[index2]
+                Z2 = self.z[index2]
+                m2 = self.m[index2]
                 
                 #Calculates COM position for particles inside smaller radius
                 Xcom2, Ycom2, Zcom2 = self.COMdefine(X2,Y2,Z2,m2)
                 
                 #Magnitude of distance for new COM
-                RCOM2 = np.sqrt(Xcom2**2+Ycom2**2+Zcom2**2)
+                RCOM2 = np.sqrt(Xcom2**2 + Ycom2**2 + Zcom2**2)
                 
                 #difference in old and new COM for each component in position vector
-                diff = np.abs(RCOM-RCOM2)
+                diff = np.abs(RCOM - RCOM2)
               
                 #Max 3D separation for new COM coordinates, so a smaller radius
-                RMAX2 = RMAX/VolDec
+                RMAX = RMAX/2.0
 
                 #Changes reference frame to new COM
                 XNEW = self.x - Xcom2
                 YNEW = self.y - Ycom2
                 ZNEW = self.z - Zcom2
-                RNEW = np.sqrt(XNEW**2+YNEW**2+ZNEW**2)
+                RNEW = np.sqrt(XNEW**2 + YNEW**2 + ZNEW**2)
     
                 #Setting COM positions to refined values
                 Xcom = Xcom2
@@ -106,11 +106,11 @@ class CenterOfMass:
                 RCOM = RCOM2
         
                 #Creating vector that stores rounded COM positions
-                COMP = [np.round((Xcom)*u.kpc), np.round((Ycom)*u.kpc), np.round((Zcom)*u.kpc)]
+                COMP = [Xcom, Ycom, Zcom]
                     
-        return COMP #returns COM position vector
+        return np.round(COMP,2)*u.kpc #returns COM position vector
 
-    def COM_V(self, delta, VolDec, Xcom, Ycom, Zcom):
+    def COM_V(self, Xcom, Ycom, Zcom):
         #Defining particles within a certain radius
         RVMAX = 15.0*u.kpc
         
@@ -118,10 +118,10 @@ class CenterOfMass:
         VX = self.x[:]*u.kpc - Xcom
         VY = self.y[:]*u.kpc - Ycom
         VZ = self.z[:]*u.kpc - Zcom
-        RV = np.sqrt(VX**2+VY**2+VZ**2)
+        RV = np.sqrt(VX**2 + VY**2 +VZ**2)
         
         #Want velocities for particles within a radius of 15 kpc from COM position
-        index = np.where(RV<RVMAX)
+        index = np.where(RV < RVMAX)
                 
         #Calculates COM velocity for particles inside RVMAX, and use "self" again since it has been defined inside
         #of the class
@@ -134,8 +134,8 @@ class CenterOfMass:
         VXcom, VYcom, VZcom = self.COMdefine(VXcomNEW,VYcomNEW,VZcomNEW,mnew)
 
         #Creating vector that stores rounded COM velocities
-        COMV = [np.round((VXcom)*u.km/u.s), np.round((VYcom)*u.km/u.s), np.round((VZcom)*u.km/u.s)]
-        return COMV
+        COMV = [VXcom, VYcom, VZcom]
+        return np.round(COMV,2)*u.km/u.s
 #####
 ###Test if the code works
 #####
@@ -146,45 +146,48 @@ class CenterOfMass:
 #Choosing a tolerance for COM
 delta = 0.3
 
-#print("Answer to Question 1:")
-#MWCOM = CenterOfMass("MW_000.txt", 2.)
+print("Answer to Question 1:")
+MWCOM = CenterOfMass("MW_000.txt", 2.)
 # Calculate quantities for MW data
-#MW_COMP = MWCOM.COM_P(delta)
+MW_COMP = MWCOM.COM_P(0.3)
 #Print COM position vector for Milky Way
-#print("MW COM Position Vector:"), MW_COMP
-#MW_COMV = MWCOM.COM_V(delta)
+print("MW COM Position Vector:"), MW_COMP
+MW_COMV = MWCOM.COM_V(MW_COMP[0], MW_COMP[1], MW_COMP[2])
 #Print COM velocity vector for Milky Way
-#print("MW COM Velocity Vector:"),MW_COMV
+print("MW COM Velocity Vector:"), MW_COMV
 
-#M31COM = CenterOfMass("M31_000.txt", 2.)
+M31COM = CenterOfMass("M31_000.txt", 2.)
 # Calculate quantities for M31 data
-#M31_COMP = M31COM.COM_P(delta)
+M31_COMP = M31COM.COM_P(0.3)
 #Print COM position vector for M31
-#print("M31 COM Position Vector:"), M31_COMP
-#M31_COMV = M31COM.COM_V(delta)
+print("M31 COM Position Vector:"), M31_COMP
+M31_COMV = M31COM.COM_V(M31_COMP[0], M31_COMP[1], M31_COMP[2])
 #Print COM velocity vector for M33
-#print("M31 COM Velocity Vector:"),M31_COMV
+print("M31 COM Velocity Vector:"), M31_COMV
 
-#M33COM = CenterOfMass("M33_000.txt", 2.)
+M33COM = CenterOfMass("M33_000.txt", 2.)
 # Calculate quantities for M33 data
-#M33_COMP = M33COM.COM_P(delta)
+M33_COMP = M33COM.COM_P(0.3)
 #Print COM position vector for M33
-#print("M33 COM Position Vector:"), M33_COMP
-#M33_COMV = M33COM.COM_V(delta)
+print("M33 COM Position Vector:"), M33_COMP
+M33_COMV = M33COM.COM_V(M33_COMP[0], M33_COMP[1], M33_COMP[2])
 #Print COM velocity vector for M33
-#print("M33 COM Velocity Vector:"),M33_COMV
+print("M33 COM Velocity Vector:"), M33_COMV
 
-#print("The components above do not seem quite correct, but I cannot find a place in the code that changes the output correctly")
 
-#print ("Answer to Question 2:")
+print ("Answer to Question 2:")
 #Print the magnitude of current separation between MW and M31
-#print("Magnitude of current separation between MW and M31:"), np.sqrt(M31_COMP**2 - MW_COMP**2)
-#print("Magnitude of velocity between MW and M31:"), np.sqrt((M31_COMV**2 - MW_COMV**2)
+MW_M31_sep = np.sqrt((M31_COMP[0] - MW_COMP[0])**2 + (M31_COMP[1] - MW_COMP[1])**2 + (M31_COMP[2] - MW_COMP[2])**2)
+print("Magnitude of current separation between MW and M31:"), np.round(MW_M31_sep)
+MW_M31_vel = np.sqrt((M31_COMV[0] - MW_COMV[0])**2 + (M31_COMV[1] - MW_COMV[1])**2 + (M31_COMV[2] - MW_COMV[2])**2)
+print("Magnitude of velocity between MW and M31:"), np.round(MW_M31_vel)
 
-#print ("Answer to Question 3:")
+print ("Answer to Question 3:")
 #Print the magnitude of current separation between M31 and M33
-#print("Magnitude of current separation between M31 and M33:"), np.sqrt(M31_COMP**2 - M33_COMP**2)
-#print("Magnitude of velocity between M31 and M33:"), np.sqrt(M31_COMV**2 - M33_COMV**2)
+M33_M31_sep = np.sqrt((M33_COMP[0] - M31_COMP[0])**2 + (M33_COMP[1] - M31_COMP[1])**2 + (M33_COMP[2] - M31_COMP[2])**2)
+print("Magnitude of current separation between M31 and M33:"), np.round(M33_M31_sep)
+M33_M31_vel = np.sqrt((M33_COMV[0] - M31_COMV[0])**2 + (M33_COMV[1] - M31_COMV[1])**2 + (M33_COMV[2] - M31_COMV[2])**2)
+print("Magnitude of velocity between M31 and M33:"), np.round(M33_M31_vel)
 
-#print("Answer to Question 4:")
-#print("As the galaxies become closer, the total separation decreases and velocity increases, thus changing the COM, especially after they start interacting, so we must use an iterative process as time evolves to update the COM calculation.")
+print("Answer to Question 4:")
+print("As the galaxies become closer, the total separation decreases and velocity increases, thus changing the COM, especially after they start interacting and the stars all change radii, so we must use an iterative process as time evolves to update the COM calculation.")
